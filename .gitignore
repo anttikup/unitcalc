@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 
-project
 target
+project/target
+project/project
