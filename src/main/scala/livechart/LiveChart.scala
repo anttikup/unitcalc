@@ -17,32 +17,52 @@ def LiveChart(): Unit =
     Main.appElement()
   )
 
-object Main:
+object Main {
+  val model = new Model
+  import model.*
+
   def appElement(): Element =
     div(
-      a(href := "https://vitejs.dev", target := "_blank",
-        img(src := "/vite.svg", className := "logo", alt := "Vite logo"),
-      ),
-      a(href := "https://developer.mozilla.org/en-US/docs/Web/JavaScript", target := "_blank",
-        img(src := javascriptLogo, className := "logo vanilla", alt := "JavaScript logo"),
-      ),
-      h1("Hello Laminar!"),
-      div(className := "card",
-        button(tpe := "button"),
-      ),
-      p(className := "read-the-docs",
-        "Click on the Vite logo to learn more",
-      ),
+      h1("Live Chart"),
+      renderDataTable(),
+      renderDataList(),
     )
   end appElement
-end Main
 
-def counterButton(): Element =
-  val counter = Var(0)
-  button(
-    tpe := "button",
-    "count is ",
-    child.text <-- counter,
-    onClick --> { event => counter.update(c => c + 1) },
-  )
-end counterButton
+  def renderDataTable(): Element =
+    table(
+      thead(tr(th("Label"), th("Price"), th("Count"), th("Full price"), th("Action"))),
+      tbody(
+        children <-- dataSignal.split(_.id) { (id, initial, itemSignal) =>
+          renderDataItem(id, itemSignal)
+        }
+      ),
+      tfoot(tr(
+        td(button("➕", onClick --> (_ => addDataItem(DataItem())))),
+        td(),
+        td(),
+        td(child.text <-- dataSignal.map(data => "%.2f".format(data.map(_.fullPrice).sum))),
+      )),
+    )
+  end renderDataTable
+
+  def renderDataItem(id: DataItemID, itemSignal: Signal[DataItem]): Element =
+    tr(
+      td(child.text <-- itemSignal.map(_.label)),
+      td(child.text <-- itemSignal.map(item => "%.2f".format(item.price))),
+      td(child.text <-- itemSignal.map(_.count)),
+      td(
+        child.text <-- itemSignal.map(item => "%.2f".format(item.fullPrice))
+      ),
+      td(button("🗑️", onClick --> (_ => removeDataItem(id)))),
+    )
+  end renderDataItem
+
+  def renderDataList(): Element =
+    ul(
+      children <-- dataSignal.split(_.id) { (id, initial, itemSignal) =>
+        li(child.text <-- itemSignal.map(item => s"${item.count} ${item.label}"))
+      }
+    )
+  end renderDataList
+}
