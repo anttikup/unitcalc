@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val livechart = project.in(file("."))
+lazy val unitcalc = project.in(file("."))
   .enablePlugins(ScalaJSPlugin) // Enable the Scala.js plugin in this project
   .settings(
     scalaVersion := "3.2.2",
@@ -11,14 +11,14 @@ lazy val livechart = project.in(file("."))
     /* Configure Scala.js to emit modules in the optimal way to
      * connect to Vite's incremental reload.
      * - emit ECMAScript modules
-     * - emit as many small modules as possible for classes in the "livechart" package
+     * - emit as many small modules as possible for classes in the "unitcalc" package
      * - emit as few (large) modules as possible for all other classes
      *   (in particular, for the standard library)
      */
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(
-          ModuleSplitStyle.SmallModulesFor(List("livechart")))
+          ModuleSplitStyle.SmallModulesFor(List("unitcalc")))
     },
 
     /* Depend on the scalajs-dom library.
