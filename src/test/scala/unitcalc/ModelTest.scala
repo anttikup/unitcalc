@@ -1,6 +1,6 @@
-package livechart
+package unitcalc
 
-import livechart.{DataItem, DataItemID}
+import unitcalc.{DataItem, DataItemID}
 
 class ModelTest extends munit.FunSuite {
   test("fullPrice") {
