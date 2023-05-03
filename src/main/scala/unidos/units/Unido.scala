@@ -32,8 +32,16 @@ class Unido(val name: String, val multiplier: Double, val dims: Dims) {
   }
 
   def *(other: Unido): Unido = {
-    if ( other.dims == Dims.get("Dimensionless").get ) {
-      new Unido(name, multiplier * other.multiplier, dims * other.dims)
+    if ( this == other ) {
+      new Unido("", multiplier, dims * other.dims)
+    } else if ( other.dims == Dims.get("Dimensionless").get ) {
+      if ( other.name == "1" ) {
+        new Unido(name, multiplier * other.multiplier, dims * other.dims)
+      } else if ( this.name == "1" ) {
+        new Unido(other.name, multiplier * other.multiplier, dims * other.dims)
+      } else {
+        new Unido(name, multiplier * other.multiplier, dims * other.dims)
+      }
     } else if ( dims == Dims.get("Dimensionless").get ) {
       new Unido(other.name, multiplier * other.multiplier, dims * other.dims)
     } else if ( dims == other.dims ) {

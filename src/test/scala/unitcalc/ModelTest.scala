@@ -1,36 +1,37 @@
 package unitcalc
 
-import unitcalc.{DataItem, DataItemID}
+import unitcalc.{ExprItem, ExprItemID}
 
 class ModelTest extends munit.FunSuite {
-  test("fullPrice") {
-    val item = DataItem(DataItemID(), "test", 0.5, 5)
-    assert(item.fullPrice == 2.5)
+  test("label") {
+    val item = ExprItem(ExprItemID(), "test")
+    assert(item.label == "test")
   }
 
-  test("addDataItem") {
+  test("addExprItem") {
     val model = new Model
 
-    val item = DataItem(DataItemID(), "test", 0.5, 2)
-    model.addDataItem(item)
+    val item = ExprItem(ExprItemID(), "test")
+    model.addExprItem(item)
 
-    val afterItems = model.dataSignal.now()
-    assert(afterItems.size == 2)
+    val afterItems = model.exprSignal.now()
+
+    assert(afterItems.size == 1)
     assert(afterItems.last == item)
   }
 
-  test("removeDataItem") {
+  test("removeExprItem") {
     val model = new Model
 
-    model.addDataItem(DataItem(DataItemID(), "test", 0.5, 2))
+    model.addExprItem(ExprItem(ExprItemID(), "test"))
 
-    val beforeItems = model.dataSignal.now()
-    assert(beforeItems.size == 2)
+    val beforeItems = model.exprSignal.now()
+    assert(beforeItems.size == 1)
 
-    model.removeDataItem(beforeItems.head.id)
+    model.removeExprItem(beforeItems.head.id)
 
-    val afterItems = model.dataSignal.now()
-    assert(afterItems.size == 1)
+    val afterItems = model.exprSignal.now()
+    assert(afterItems.size == 0)
     assert(afterItems == beforeItems.tail)
   }
 

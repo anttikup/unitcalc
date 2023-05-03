@@ -52,8 +52,11 @@ object Dims {
   }
 
   def name(dims: Dims, name: String) = {
-    byDims.put(dims, name)
     byName.put(name, dims)
+    // Keep the first name as the default name
+    if ( !byDims.contains(dims) ) {
+      byDims.put(dims, name)
+    }
     dims
   }
 
