@@ -1,90 +1,57 @@
 package unidos.units
 
-import scala.collection.mutable.HashMap
+import unidos.units.{Dims, Unidos}
 
 
-class Unido(val name: String, val multiplier: Double, val dims: Dims) {
+case class Unido(val multiplier: Double, val quantity: String) {
 
-  def this(multiplier: Double, dims: Dims) =
-    this(Unido.defaultName(dims), multiplier, dims)
+  Quantity.get(quantity) match {
+    case Some(_) => ;
+    case None => ;//throw new Error(s"No such quantity: $quantity")
+  }
 
   override def toString(): String =
-    s"Unido('$name', $multiplier, $dims)"
+    s"Unido($multiplier, '$quantity'; [name=${name}])"
 
-  def +(other: Unido) = {
-    if ( dims != other.dims ) {
-      throw new Error(s"Incompatible dimensions: ”${dims.name.get}” and ”${other.dims.name.get}”")
-    }
 
-    if ( multiplier == other.multiplier ) {
-      new Unido(name, multiplier + other.multiplier, dims)
-    } else {
-      new Unido("", multiplier + other.multiplier, dims)
-    }
-  }
-
-  def -(other: Unido) = {
-    if ( dims != other.dims ) {
-      throw new Error("Incompatible dimensions")
-    }
-
-    new Unido(name, multiplier - other.multiplier, dims)
-  }
+  def *(scalar: Double): Unido =
+    Unido(multiplier * scalar, quantity)
 
   def *(other: Unido): Unido = {
-    if ( this == other ) {
-      new Unido("", multiplier, dims * other.dims)
-    } else if ( other.dims == Dims.get("Dimensionless").get ) {
-      if ( other.name == "1" ) {
-        new Unido(name, multiplier * other.multiplier, dims * other.dims)
-      } else if ( this.name == "1" ) {
-        new Unido(other.name, multiplier * other.multiplier, dims * other.dims)
-      } else {
-        new Unido(name, multiplier * other.multiplier, dims * other.dims)
-      }
-    } else if ( dims == Dims.get("Dimensionless").get ) {
-      new Unido(other.name, multiplier * other.multiplier, dims * other.dims)
-    } else if ( dims == other.dims ) {
-      new Unido(multiplier * other.multiplier, dims * other.dims)
-    } else {
-      new Unido(multiplier * other.multiplier, dims * other.dims)
-    }
+    val dimsThis = Quantity.get(this.quantity)
+    val dimsOther = Quantity.get(other.quantity)
+    println(s"dims: ${this.quantity}: $dimsThis; ${other.quantity}: $dimsOther")
+
+    val resultDims = dimsThis.get * dimsOther.get
+    val quantity = Quantity.get(resultDims)
+    Unido(this.multiplier * other.multiplier, quantity)
   }
 
-  def *(scalar: Double): Unido = new Unido("", multiplier * scalar, dims)
+  def /(scalar: Double): Unido =
+    Unido(multiplier / scalar, quantity)
 
   def /(other: Unido): Unido = {
-    if ( other.dims == Dims.get("Dimensionless").get ) {
-      new Unido(name, multiplier / other.multiplier, dims / other.dims)
-    } else {
-      new Unido(multiplier / other.multiplier, dims / other.dims)
+    val dimsThis = Quantity.get(this.quantity)
+    val dimsOther = Quantity.get(other.quantity)
+    println(s"dims: ${this.quantity}: $dimsThis; ${other.quantity}: $dimsOther")
+
+    val resultDims = dimsThis.get / dimsOther.get
+    val quantity = Quantity.get(resultDims)
+    Unido(this.multiplier * other.multiplier, quantity)
+  }
+
+  def name: Option[String] =
+    Unidos.get(this) match {
+      case Some(name) => Some(name)
+      case None => Some(Unido.constructName(this.quantity))
     }
-  }
-
-  def /(scalar: Double): Unido = new Unido(multiplier / scalar, dims)
-
-  def /:(other: Double): Unido = {
-    println(s"other: $other: ${multiplier / other}")
-    new Unido(multiplier / other, Dims(0, 0, 0, 0, 0, 0, 0) / dims)
-  }
-
-  def quantity: Option[String] =
-    dims.name
-
-  def nameOrDefaultName: String =
-    Unido.nameOrDefaultName(this)
 
 }
 
 
 object Unido {
-  val byName = new HashMap[String, Unido]()
-  val defaultUnits = new HashMap[Dims, Unido]()
-
-  put("1", 1, Dims.get("Dimensionless").get)
-
   def apply(name: String = "") = {
-    get(name) match {
+    Unidos.get(name) match {
       case Some(unit) => unit
       case None => {
         throw new Error(s"No such unit $name")
@@ -92,71 +59,43 @@ object Unido {
     }
   }
 
-  def put(name: String, multiplier: Double, dims: Dims): Unido = {
-    val unit = new Unido(name, multiplier, dims)
-    byName.put(name, unit)
-    println(s"Add unit $name")
-    if ( multiplier == 1 && !defaultUnits.contains(dims) ) {
-      println(s"default $dims : $unit")
-      defaultUnits.put(dims, unit)
-    }
-    unit
+  def create(name: String, multiplier: Double, quantity: String): Unido = {
+    val value = new Unido(multiplier, quantity)
+    Unidos.create(name, value)
   }
 
-  def put(name: String, unit: Unido): Unido = {
-    put(name, unit.multiplier, unit.dims)
+  def create(name: String, value: Unido): Unido =
+    Unidos.create(name, value)
+
+  def UNITLESS: Unido = Unidos.get("1").get
+
+  def getDefaultUnitForDimension(dimension: Int, exponent: Int): Unido = {
+    val quantity = Quantity.getDefaultQuantityForDimension(dimension, exponent)
+
+    Quantity.baseUnitOf(quantity)
   }
 
-  def get(name: String): Option[Unido] =
-    byName.get(name)
-
-  def UNITLESS: Unido = get("1").get
-
-  def baseUnit(quantity: Dims): Unido =
-    new Unido(defaultName(quantity), 1, quantity)
-
-  def pow(unit: Unido, exp: Int) =
-    new Unido(math.pow(unit.multiplier, exp), Dims.pow(unit.dims, exp))
-
-  def root(unit: Unido, exp: Int) =
-    new Unido(math.pow(unit.multiplier, 1/exp), Dims.root(unit.dims, exp))
-
-  def getUnitForDimension(dimension: Int, exponent: Int): String = {
+  def getExponentedUnitForDimension(dimension: Int, exponent: Int): String = {
     println(s"get unit for $dimension: $exponent")
-    val part = Dims.makeOneDimensionDims(dimension, 1)
-    defaultUnits.get(part) match {
-      case Some(unit) => return s"${unit.name}${Util.getPower(exponent)}"
-      case None => throw new Error(s"No default unit for dimension ${dimension}")
-    }
+    val unit = Unido.getDefaultUnitForDimension(dimension, 1)
+    unit.name.get + Util.getPower(exponent)
   }
 
   def constructName(dims: Dims): String = {
     val unitsByDim = dims.zipWithIndex.map({
-      case (dimensionValue, i) =>
-        if (dimensionValue != 0)
-          getUnitForDimension(i, dimensionValue)
+      case (dimensionExponent, i) =>
+        if (dimensionExponent != 0)
+          getExponentedUnitForDimension(i, dimensionExponent)
         else ""
     }).filter(value => value != "")
 
     unitsByDim.mkString(" ")
   }
 
-  def defaultName(dims: Dims): String = {
-    defaultUnits.get(dims) match {
-      case Some(unit) => unit.name
-      case None => constructName(dims)
+  def constructName(quantity: String): String =
+    Quantity.get(quantity) match {
+      case Some(dims) => constructName(dims)
+      case None => throw new Error(s"no such quantity: $quantity")
     }
-  }
 
-
-  def defaultName(unit: Unido): String = {
-    s"${unit.multiplier}·${defaultName(unit.dims)}"
-  }
-
-  def nameOrDefaultName(unit: Unido): String = {
-    unit.name match {
-      case "" => defaultName(unit)
-      case _ => unit.name
-    }
-  }
 }
