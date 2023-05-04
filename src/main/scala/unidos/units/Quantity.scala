@@ -3,14 +3,36 @@ package unidos.units
 import scala.collection.mutable.HashMap
 
 
-// class Quantity(name: String, args: Int*) extends Dims(args*) {
+case class Quantity(val name: String, dims: Dims) {
+  override def toString: String = {
+    return s"Quantity(\"$name\", $dims)"
+  }
 
-// }
+  def *(other: Quantity): Quantity = {
+    val newDims = this.dims * other.dims
+    Quantity.byDims.get(newDims) match {
+      case Some(quantity) => quantity
+      case None => new ImplicitQuantity(Quantity.constructName(newDims), newDims)
+    }
+  }
+
+  def /(other: Quantity): Quantity = {
+    val newDims = this.dims / other.dims
+    Quantity.byDims.get(newDims) match {
+      case Some(quantity) => quantity
+      case None => new ImplicitQuantity(Quantity.constructName(newDims), newDims)
+    }
+  }
+
+
+}
+class ImplicitQuantity(override val name: String, dims: Dims) extends Quantity(name, dims)
+class NamedQuantity(override val name: String, dims: Dims) extends Quantity(name, dims)
 
 
 object Quantity {
-  val byName = new HashMap[String, Dims]()
-  val byDims = new HashMap[Dims, String]()
+  val byName = new HashMap[String, NamedQuantity]()
+  val byDims = new HashMap[Dims, NamedQuantity]()
 
   create("dimensionless", Dims(new Array[Int](Axis.values.size):_*))
   for (d <- Axis.values) {
@@ -20,39 +42,45 @@ object Quantity {
     )
   }
 
-  def create(name: String, dims: Dims): Dims = {
-    byName.put(name, dims)
+  def create(name: String, dims: Dims): NamedQuantity = {
+    val quantity = new NamedQuantity(name, dims)
+    println(s"created: $quantity")
+    byName.put(name, quantity)
     // Keep the first name as the default name
     if ( !byDims.contains(dims) ) {
       println(s"Added dims: $name, $dims")
-      byDims.put(dims, name)
+      byDims.put(dims, quantity)
     }
-    dims
+    quantity
   }
 
-  def get(dims: Dims): String = {
+  def create(name: String, quantity: Quantity): NamedQuantity =
+    create(name, quantity.dims)
+
+  def get(dims: Dims): Quantity = {
     byDims.get(dims) match {
-      case Some(name) => name
-      case None => constructName(dims)
+      case Some(quantity) => quantity
+      case None => new ImplicitQuantity(constructName(dims), dims)
     }
   }
 
-  def get(name: String): Option[Dims] =
+  def get(name: String): Option[Quantity] =
     byName.get(name)
 
-  def getDefaultQuantityForDimension(dimension: Int, exponent: Int): String = {
+  def getDefaultQuantityForDimension(dimension: Int, exponent: Int): Quantity = {
     val dims = Dims.makeOneDimensionDims(dimension, exponent)
     Quantity.get(dims)
   }
 
-  def baseUnitOf(quantity: String): Unido =
-    Unido(1, quantity)
-
+  def baseUnitOf(quantity: String): Unido = {
+    val q = Quantity.get(quantity).get
+    Unido(1, q)
+  }
 
   def getExponentedQuantityForDimension(dimension: Int, exponent: Int): String = {
     println(s"get quantity for $dimension: $exponent")
-    val quantity: String = Quantity.getDefaultQuantityForDimension(dimension, 1)
-    quantity + Util.getPower(exponent)
+    val quantity = Quantity.getDefaultQuantityForDimension(dimension, 1)
+    quantity.name + Util.getPower(exponent)
   }
 
 

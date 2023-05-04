@@ -24,6 +24,10 @@ case class Dims(args: Int*) {
     return new Dims(dims.zip(other.dims).map({ case (a, b) => a - b }):_*)
   }
 
+  def isElementary: Boolean = {
+    return args.sum == 1
+  }
+
 }
 
 object Dims {

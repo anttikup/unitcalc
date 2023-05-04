@@ -40,5 +40,11 @@ class DimsTest extends munit.FunSuite {
     assert(Dims.root(volume, 3) == length)
   }
 
+  test("isElementary returns true if only one number is set and it is one") {
+    assert(Dims(1, 0, 0, 0, 0, 0, 0).isElementary == true)
+    assert(Dims(0, 1, 0, 0, 0, 0, 0).isElementary == true)
+    assert(Dims(0, 3, 0, 0, 0, 0, 0).isElementary == false)
+    assert(Dims(0, 1, 1, 0, 0, 0, 0).isElementary == false)
+  }
 
 }
