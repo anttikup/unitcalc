@@ -34,21 +34,19 @@ object Quantity {
   val byName = new HashMap[String, NamedQuantity]()
   val byDims = new HashMap[Dims, NamedQuantity]()
 
-  create("dimensionless", Dims(new Array[Int](Axis.values.size):_*))
-  for (d <- Axis.values) {
-    create(
-      d.toString,
-      Dims.makeOneDimensionDims(d.id)
-    )
-  }
+  // create("dimensionless", Dims(new Array[Int](definedDims):_*))
+  // for (d <- Axis.values) {
+  //   create(
+  //     d.toString,
+  //     Dims.makeOneDimensionDims(d.id)
+  //   )
+  // }
 
   def create(name: String, dims: Dims): NamedQuantity = {
     val quantity = new NamedQuantity(name, dims)
-    println(s"created: $quantity")
     byName.put(name, quantity)
     // Keep the first name as the default name
     if ( !byDims.contains(dims) ) {
-      println(s"Added dims: $name, $dims")
       byDims.put(dims, quantity)
     }
     quantity
@@ -56,6 +54,25 @@ object Quantity {
 
   def create(name: String, quantity: Quantity): NamedQuantity =
     create(name, quantity.dims)
+
+  def createBaseQuantities(names: Array[String]): Array[Quantity] = {
+    Dims.numberOfDims = names.length - 1
+
+    var output = Array[Quantity]()
+    for ( case (name, i) <- names.zipWithIndex ) {
+      if ( i == 0 ) {
+        output = output :+ create(names(0), Dims(new Array[Int](Dims.numberOfDims):_*))
+      } else {
+        output = output :+ create(
+          name,
+          Dims.makeOneDimensionDims(i - 1)
+        )
+      }
+    }
+
+    output
+  }
+
 
   def get(dims: Dims): Quantity = {
     byDims.get(dims) match {
@@ -78,7 +95,6 @@ object Quantity {
   }
 
   def getExponentedQuantityForDimension(dimension: Int, exponent: Int): String = {
-    println(s"get quantity for $dimension: $exponent")
     val quantity = Quantity.getDefaultQuantityForDimension(dimension, 1)
     quantity.name + Util.getPower(exponent)
   }

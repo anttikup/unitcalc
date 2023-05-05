@@ -12,31 +12,34 @@ class Unitful(val amount: Double, val unit: Unido) {
     s"Unitful($amount, $unit)"
 
   def +(other: Unitful) = {
-    new Unitful(amount * unit.multiplier + other.amount * other.unit.multiplier, Unido.baseUnit(unit.dims))
+    if ( this.unit.quantity != other.unit.quantity ) {
+      throw new Error(s"Incompatible units: ${this.unit} and ${other.unit}")
+    }
+
+    val resultUnit = Quantity.baseUnitOf(this.unit.quantity.name)
+    new Unitful(this.amount * this.unit.multiplier + other.amount * other.unit.multiplier, resultUnit)
   }
 
-  def -(other: Unitful) =
-    new Unitful(amount * unit.multiplier - other.amount * other.unit.multiplier, new Unido(1, unit.dims))
+  def -(other: Unitful) = {
+    if ( this.unit.quantity != other.unit.quantity ) {
+      throw new Error(s"Incompatible units: ${this.unit} and ${other.unit}")
+    }
 
-  def *(other: Unitful) =
-    new Unitful(amount * other.amount, unit * other.unit)
+    val resultUnit = Quantity.baseUnitOf(this.unit.quantity.name)
+    new Unitful(this.amount * this.unit.multiplier - other.amount * other.unit.multiplier, resultUnit)
+  }
 
   def *(scalar: Double) =
     new Unitful(amount * scalar, unit)
 
+  def *(other: Unitful) =
+    new Unitful(amount * other.amount, unit * other.unit)
+
+  def /(scalar: Double) =
+    new Unitful(amount / scalar, unit)
+
   def /(other: Unitful) =
     new Unitful(amount / other.amount, unit / other.unit)
-
-  def ^(other: Unitful) = {
-    if ( other.unit != Unido.UNITLESS ) {
-      throw new Error("Not implemented")
-    }
-    val int = other.amount.toInt
-    if ( int != other.amount ) {
-      throw new Error("Not implemented")
-    }
-    new Unitful(Math.pow(amount, int), Unido.pow(unit, int))
-  }
 
   def quantity = unit.quantity
 

@@ -2,15 +2,34 @@ package unidos
 
 import unidos.units.{Dims, Quantity, Unido, Unidos}
 
+
+
 class UnidoTest extends munit.FunSuite {
+  def createBasicDims: Array[Quantity] =
+    Quantity.createBaseQuantities(
+      Array(
+        "dimensionless",
+        "time",
+        "length",
+        "mass",
+        "electric current",
+        "temperature",
+        "amount of substance",
+        "luminous intensity"
+      )
+    )
+
+
 
   test("can create") {
-    val length = Quantity.get("length").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val unit = Unido.create("metre", 1, length)
   }
 
   test("apply returns same object for same name") {
-    val length = Quantity.get("length").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     Unido.create("metre", 1, length)
     val metre1 = Unido("metre")
     val metre2 = Unido("metre")
@@ -19,7 +38,8 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("same parameters create same object") {
-    val length = Quantity.get("length").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val metre1 = Unido.create("metre", 1, length)
     val metre2 = Unido.create("metre", 1, length)
 
@@ -27,6 +47,8 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("same parameters create same object (baseUnit)") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val metre1 = Unido.create("metre", Quantity.baseUnitOf("length"))
     val metre2 = Unido.create("metre", Quantity.baseUnitOf("length"))
 
@@ -34,6 +56,8 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("same name with different unit throws error") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val metre1 = Unido.create("metre", Quantity.baseUnitOf("length"))
 
     intercept[java.lang.Error] {
@@ -42,7 +66,8 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("sets 1 unit as default") {
-    val length = Quantity.get("length").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val metre = Unido.create("metre", 1, length)
     val default = Unidos.getDefaultUnitForQuantity("length")
 
@@ -50,7 +75,8 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("can create a unit by multiplying other unit by scalar") {
-    val length = Quantity.get("length").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val m = Unido.create("metre", 1, length)
     val km = Unido.create("kilometre", m * 1000)
 
@@ -59,7 +85,8 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("can create a unit by dividing other unit by scalar") {
-    val length = Quantity.get("length").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val m = Unido.create("metre", 1, length)
     val mm = Unido.create("millimetre", m / 1000)
 
@@ -68,21 +95,22 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("can create a unit by multiplying an unit by another unit ") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val force = Quantity.create("force", Dims(-2, 1, 1, 0, 0, 0, 0))
     val torque = Quantity.create("torque", Dims(-2, 2, 1, 0, 0, 0, 0))
-    val length = Quantity.get("length").get
     val N = Unido.create("newton", 1, force)
     val m = Unido.create("metre", 1, length)
     val Nm = Unido.create("newton-metre", N * m)
 
-    println(Nm)
     assert(Nm.multiplier == 1)
     assert(Nm.quantity == torque)
   }
 
   test("multiplying a unit by a dimensionless unit keeps the original unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val force = Quantity.create("force", Dims(-2, 1, 1, 0, 0, 0, 0))
-    val dimensionless = Quantity.get("dimensionless").get
     val `1` = Unido.create("1", Quantity.baseUnitOf("dimensionless"))
     val N = Unido.create("newton", Quantity.baseUnitOf("force"))
 
@@ -94,8 +122,9 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("multiplying a unit by a dimensionless unit keeps the original unit (reverse)") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val force = Quantity.create("force", Dims(-2, 1, 1, 0, 0, 0, 0))
-    val dimensionless = Quantity.get("dimensionless").get
     val `1` = Unido.create("1", Quantity.baseUnitOf("dimensionless"))
     val N = Unido.create("newton", Quantity.baseUnitOf("force"))
 
@@ -107,8 +136,9 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("dividing a unit by a dimensionless unit keeps the original unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val force = Quantity.create("force", Dims(-2, 1, 1, 0, 0, 0, 0))
-    val dimensionless = Quantity.get("dimensionless").get
     val `1` = Unido.create("1", Quantity.baseUnitOf("dimensionless"))
     val N = Unido.create("newton", Quantity.baseUnitOf("force"))
 
@@ -119,12 +149,24 @@ class UnidoTest extends munit.FunSuite {
     assert(result.name == Some("newton"))
   }
 
+  test("can create an inverted unit by dividing dimensionless with a unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido.create("1", 1, dimensionless)
+    val s = Unido.create("second", 1, time)
+
+    var result = `1`/s
+
+    assert(result.multiplier == 1)
+    assert(result.name == Some("second⁻¹"))
+  }
+
+
   test("multiple quantities can share a dimension, but have their own units") {
-    val dimensionless = Quantity.get("dimensionless").get
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val planeAngle = Quantity.create("plane angle", Dims(0, 0, 0, 0, 0, 0, 0))
     val solidAngle = Quantity.create("solid angle", Dims(0, 0, 0, 0, 0, 0, 0))
-
-
 
     val `1` = Unido.create("1", Quantity.baseUnitOf("dimensionless"))
     val rad = Unido.create("radian", Quantity.baseUnitOf("plane angle"))
@@ -136,19 +178,20 @@ class UnidoTest extends munit.FunSuite {
   }
 
   test("operations can create new implicit units") {
-    val time = Quantity.get("time").get
-    val length = Quantity.get("length").get
-    val mass = Quantity.get("mass").get
-    val test = Quantity.create("test", Dims(-9, 9, 9, 0, 0, 0, 0))
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
     val s = Unido.create("second", Quantity.baseUnitOf("time"))
     val m = Unido.create("metre", Quantity.baseUnitOf("length"))
     val kg = Unido.create("kilogram", Quantity.baseUnitOf("mass"))
+
+    val test = Quantity.create("test", Dims(-9, 9, 9, 0, 0, 0, 0))
     val xxx = Unido.create("xxx", Quantity.baseUnitOf("test"))
 
     val x = xxx / m
 
     assert(x.name == Some("second⁻⁹ metre⁸ kilogram⁹"))
   }
+
 
 
 }

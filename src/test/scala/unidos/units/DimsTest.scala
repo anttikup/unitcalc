@@ -9,11 +9,13 @@ class DimsTest extends munit.FunSuite {
   }
 
   test("makes one dimension dims") {
+    Dims.numberOfDims = 7
     val item = Dims.makeOneDimensionDims(1, 1)
     assert(item == Dims(0, 1, 0, 0, 0, 0, 0))
   }
 
   test("can multiply dims") {
+    Dims.numberOfDims = 7
     val accel = Dims(-2, 1, 0, 0, 0, 0, 0)
     val time = Dims(1, 0, 0, 0, 0, 0, 0)
 

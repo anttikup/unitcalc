@@ -15,7 +15,6 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
   def *(other: Unido): Unido = {
     val dimsThis = this.quantity
     val dimsOther = other.quantity
-    println(s"dims: ${this.quantity}: $dimsThis; ${other.quantity}: $dimsOther")
 
     val resultQuantity = dimsThis * dimsOther
     Unido(this.multiplier * other.multiplier, resultQuantity)
@@ -27,10 +26,8 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
   def /(other: Unido): Unido = {
     val dimsThis = this.quantity
     val dimsOther = other.quantity
-    println(s"dims: ${this.quantity}: $dimsThis; ${other.quantity}: $dimsOther")
 
     val resultQuantity = dimsThis / dimsOther
-    println(s"resultQuantity: $resultQuantity")
     Unido(this.multiplier * other.multiplier, resultQuantity)
   }
 
@@ -70,11 +67,9 @@ object Unido {
   }
 
   def getExponentedUnitForDimension(dimension: Int, exponent: Int): String = {
-    println(s"get unit for $dimension: $exponent")
     val unit = Unido.getDefaultUnitForDimension(dimension, 1)
     Unidos.get(unit) match {
       case Some(name) => {
-        println(s"GET $unit -> $name")
         name + Util.getPower(exponent)
       }
       case None => throw new Error(s"No basic unit defined for dimension $dimension")
@@ -94,6 +89,7 @@ object Unido {
         else ""
     }).filter(value => value != "")
 
+    println(s"  --> ${unitsByDim.mkString(" ")}")
     unitsByDim.mkString(" ")
   }
 

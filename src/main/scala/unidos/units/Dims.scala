@@ -31,8 +31,9 @@ case class Dims(args: Int*) {
 }
 
 object Dims {
+  var numberOfDims = 0
   def makeOneDimensionDims(dimension: Int, value: Int = 1): Dims = {
-    val arr = new Array[Int](Axis.values.size)
+    val arr = new Array[Int](numberOfDims)
     arr(dimension) = value
     Dims(arr:_*)
   }
