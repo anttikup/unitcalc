@@ -1,12 +1,13 @@
 package unidos.units
 
 import unidos.units.{Dims, Unidos}
+import unidos.units.prefix.Prefix
 
 
-case class Unido(val multiplier: Double, val quantity: Quantity) {
+case class Unido(val multiplier: Double, val quantity: Quantity, val prefix: Prefix = Prefix("")) {
 
   override def toString(): String =
-    s"Unido($multiplier, '$quantity'; [name=${name}])"
+    s"Unido($multiplier, $quantity, $prefix; [name=${name}])"
 
 
   def *(scalar: Double): Unido =
@@ -50,6 +51,11 @@ object Unido {
     }
   }
 
+  def create(name: String, multiplier: Double, quantity: Quantity, prefix: Prefix): Unido = {
+    val value = new Unido(multiplier, quantity, prefix)
+    Unidos.create(name, value)
+  }
+
   def create(name: String, multiplier: Double, quantity: Quantity): Unido = {
     val value = new Unido(multiplier, quantity)
     Unidos.create(name, value)
@@ -57,6 +63,7 @@ object Unido {
 
   def create(name: String, value: Unido): Unido =
     Unidos.create(name, value)
+
 
   def UNITLESS: Unido = Unidos.get("1").get
 

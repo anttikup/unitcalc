@@ -13,7 +13,7 @@ object Unidos {
     if ( byName.contains(name) ) {
       val existingUnit = byName(name)
       if ( existingUnit != value ) {
-        throw new Error(s"Unit already exists: $name")
+        throw new Error(s"Unit already exists: $name (old value: $existingUnit; new value: ${value.multiplier}, ${value.quantity})")
       }
     } else {
       byName.put(name, value)
