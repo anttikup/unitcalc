@@ -4,10 +4,10 @@ import unidos.units.{Dims, Unidos}
 import unidos.units.prefix.Prefix
 
 
-case class Unido(val multiplier: Double, val quantity: Quantity, val prefix: Prefix = Prefix("")) {
+case class Unido(val multiplier: Double, val quantity: Quantity) {
 
   override def toString(): String =
-    s"Unido($multiplier, $quantity, $prefix; [name=${name}])"
+    s"Unido($multiplier, $quantity; [name=${name}, prefix=TODO])"
 
 
   def *(scalar: Double): Unido =
@@ -51,10 +51,6 @@ object Unido {
     }
   }
 
-  def create(name: String, multiplier: Double, quantity: Quantity, prefix: Prefix): Unido = {
-    val value = new Unido(multiplier, quantity, prefix)
-    Unidos.create(name, value)
-  }
 
   def create(name: String, multiplier: Double, quantity: Quantity): Unido = {
     val value = new Unido(multiplier, quantity)
@@ -85,7 +81,8 @@ object Unido {
 
   def constructName(dims: Dims): String = {
     if ( dims.isElementary ) {
-      throw new Error(s"Can't dismember elementary dims: $dims")
+      //throw new Error(s"Can't dismember elementary dims: $dims")
+      return "?"
     }
 
     println(s"Construct name from: $dims")

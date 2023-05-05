@@ -15,11 +15,11 @@ class Prefix(val text: String = "") {
 
 
   def *(otherUnit: Unido): Unido = {
-    if ( otherUnit.prefix.text != "" ) {
-      throw new Error(s"Can't prefix prefixed unit: $otherUnit")
-    }
+    // if ( hasPrefix(otherUnit) ) {
+    //   throw new Error(s"Can't prefix prefixed unit: $otherUnit")
+    // }
 
-    val newUnit = new Unido(this.value * otherUnit.multiplier, otherUnit.quantity, this)
+    val newUnit = new Unido(this.value * otherUnit.multiplier, otherUnit.quantity)
 
     Unidos.create(this.text + otherUnit.name, newUnit)
   }

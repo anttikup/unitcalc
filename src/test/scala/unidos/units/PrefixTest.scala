@@ -21,28 +21,6 @@ class PrefixTest extends munit.FunSuite {
     )
 
 
-  // test("can create a unit by multiplying other unit by prefix") {
-  //   val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
-
-  //   val m = Unido.create("metre", 1, length)
-  //   val km = new SIPrefix("kilo") * m
-
-  //   println(s"kilometre: $km")
-  //   assert(km.multiplier == 1000)
-  //   assert(km.quantity == Quantity.get("length").get)
-  // }
-
-  // test("can create a base unit by multiplying other unit by prefix") {
-  //   val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
-
-  //   val kg = Unido.create("kilogram", 1, mass, new SIPrefix("kilo"))
-  //   val g = Unido.create("gram", 1/1000, mass)
-
-  //   assert(kg.multiplier == 1)
-  //   assert(kg.quantity == Quantity.get("mass").get)
-  //   assert(g.multiplier == 1/1000)
-  //   assert(g.quantity == Quantity.get("mass").get)
-  // }
 
   test("can create prefixed units") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
@@ -54,9 +32,11 @@ class PrefixTest extends munit.FunSuite {
 
     assert(km.multiplier == 1000)
     assert(km.quantity == Quantity.get("length").get)
-    println(s"M: $m, ${m.multiplier}")
+
     assert(m.multiplier == 1)
     assert(m.quantity == Quantity.get("length").get)
+
+    assert(Quantity.baseUnitOf("length") == m)
   }
 
   test("can create prefixed units with custom unprefixed value") {
@@ -69,9 +49,11 @@ class PrefixTest extends munit.FunSuite {
 
     assert(kg.multiplier == 1)
     assert(kg.quantity == Quantity.get("mass").get)
-    println(s"G: $g, ${g.multiplier}")
+
     assert(g.multiplier == 1e-3)
     assert(g.quantity == Quantity.get("mass").get)
+
+    assert(Quantity.baseUnitOf("mass") == kg)
   }
 
 }
