@@ -1,26 +1,21 @@
 package unidos.units.prefix
 
-import unidos.units.{Unido, Unidos}
+import unidos.units.{Unido, Unidos, Quantity}
 
 
-class Prefix(val text: String = "") {
+class Prefix {
+  val byText = Map[String, Double]()
 
-  override def toString: String =
-    s"""Prefix("$text")"""
+  def createUnits(baseName: String, quantity: Quantity, unprefixedValue: Double = 1) = {
 
-  def value: Double =
-    text match {
-      case "" => 1
+    for ( case (prefix, value) <- byText ) {
+      val unit = new Unido(unprefixedValue * value, quantity)
+      Unidos.create(s"$prefix$baseName", unit)
     }
-
-
-  def *(otherUnit: Unido): Unido = {
-    // if ( hasPrefix(otherUnit) ) {
-    //   throw new Error(s"Can't prefix prefixed unit: $otherUnit")
-    // }
-
-    val newUnit = new Unido(this.value * otherUnit.multiplier, otherUnit.quantity)
-
-    Unidos.create(this.text + otherUnit.name, newUnit)
   }
+
+  def value(text: String): Double = {
+    byText(text)
+  }
+
 }

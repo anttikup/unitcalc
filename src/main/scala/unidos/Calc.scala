@@ -4,17 +4,17 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.{Stack, Queue}
 
 import unidos.shuntingyard.Parser
-import unidos.units.{Unido, Unitful}
+import unidos.units.{Unido, Unidos, Unitful}
 
 
 object Env {
   val defs = new HashMap[String, Unido]()
 
-  def `import`(name: String, as: String): Unido = {
-    Unido.get(name) match {
+  def `import`(name: String, symbol: String): Unido = {
+    Unidos.get(name) match {
       case Some(unit) => {
-        println(s"$name -> $as")
-        defs.put(as, unit)
+        println(s"Import: $name -> $symbol")
+        defs.put(symbol, unit)
         unit
       }
       case None => {
@@ -23,7 +23,8 @@ object Env {
     }
   }
 
-  def get(short: String): Option[Unido] = defs.get(short)
+  def get(symbol: String): Option[Unido] =
+    defs.get(symbol)
 }
 
 object Calc {
@@ -60,6 +61,9 @@ object Calc {
 
     Env.`import`("minute", "min")
     Env.`import`("hour", "h")
+
+    Env.`import`("kilometre", "km")
+    Env.`import`("gram", "g")
   }
 
   def calc(expr: String): Unitful = {
@@ -67,7 +71,7 @@ object Calc {
     val varStack = Stack[Unitful]()
 
     for ( token <- rpn ) {
-      println(s"Handling: $token")
+      //println(s"Handling: $token")
       token match {
         case "*" => {
           val right = varStack.pop
@@ -97,7 +101,15 @@ object Calc {
         case "^" => {
           val right = varStack.pop
           val left = varStack.pop
-          varStack.push(left ^ right)
+          varStack.push(Unitful.pow(left, right))
+        }
+        case "sqrt" => {
+          val param = varStack.pop
+          varStack.push(Unitful.root(param, 2))
+        }
+        case "cbrt" => {
+          val param = varStack.pop
+          varStack.push(Unitful.root(param, 3))
         }
         case variable => {
           Env.get(variable) match {
@@ -105,7 +117,9 @@ object Calc {
               varStack.push(new Unitful(1, unit))
             }
             case None => {
-              varStack.push(new Unitful(variable.toDouble))
+              val d = variable.toDouble
+              val newValue = new Unitful(d)
+              varStack.push(newValue)
             }
           }
         }
@@ -118,9 +132,8 @@ object Calc {
   def eval(expr: String): Unitful = {
     val pattern = "^ *([^ =]+) *: *([^ ]+)$".r
     expr match {
-      case pattern(short, full) => {
-        println(s"$short: $full")
-        val unit = Env.`import`(full, short)
+      case pattern(symbol, full) => {
+        val unit = Env.`import`(full, symbol)
         new Unitful(1, unit)
       }
       case _ => calc(expr)

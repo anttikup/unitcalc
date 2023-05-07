@@ -98,11 +98,11 @@ object Main {
         val result = Calc.eval(expr)
         val resultVal = result.amount
         val resultUnit = result.unit
-        val unitStr = resultUnit.nameOrDefaultName
-        val dimsStr = resultUnit.dims.name match {
+        val unitStr = resultUnit.name match {
           case Some(name) => name
-          case None => ""
+          case None => "?"
         }
+        val dimsStr = resultUnit.quantity.name
 
         addExprItem(ExprItem(expr))
         addExprItem(ExprItem(s"$resultVal", s"$unitStr", dimsStr))

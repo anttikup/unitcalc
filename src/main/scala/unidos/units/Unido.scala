@@ -7,7 +7,10 @@ import unidos.units.prefix.Prefix
 case class Unido(val multiplier: Double, val quantity: Quantity) {
 
   override def toString(): String =
-    s"Unido($multiplier, $quantity; [name=${name}, prefix=TODO])"
+    name match {
+      case Some(name) => s"Unido($multiplier, $quantity; [name=\"${name}\", prefix=TODO])"
+      case None => s"Unido($multiplier, $quantity; [name=?, prefix=TODO])"
+    }
 
 
   def *(scalar: Double): Unido =
@@ -32,11 +35,18 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unido(this.multiplier * other.multiplier, resultQuantity)
   }
 
+  def ===(other: Unido): Boolean =
+    this.quantity == other.quantity && Util.almostEquals(this.multiplier, other.multiplier)
+
   def name: Option[String] =
     Unidos.get(this) match {
       case Some(name) => Some(name)
       case None => Some(Unido.constructName(this))
     }
+
+
+  def isDimensionless =
+    quantity.isDimensionless
 
 }
 
@@ -63,6 +73,16 @@ object Unido {
 
   def UNITLESS: Unido = Unidos.get("1").get
 
+  def pow(unit: Unido, exp: Int): Unido = {
+    val newQuantity = Quantity.pow(unit.quantity, exp)
+    new Unido(Math.pow(unit.multiplier, exp), newQuantity)
+  }
+
+  def root(unit: Unido, exp: Int): Unido = {
+    val newQuantity = Quantity.root(unit.quantity, exp)
+    new Unido(Math.pow(unit.multiplier, 1/exp), newQuantity)
+  }
+
   def getDefaultUnitForDimension(dimension: Int, exponent: Int): Unido = {
     val quantity = Quantity.getDefaultQuantityForDimension(dimension, exponent)
 
@@ -85,7 +105,6 @@ object Unido {
       return "?"
     }
 
-    println(s"Construct name from: $dims")
     val unitsByDim = dims.zipWithIndex.map({
       case (dimensionExponent, i) =>
         if (dimensionExponent != 0)
@@ -93,7 +112,6 @@ object Unido {
         else ""
     }).filter(value => value != "")
 
-    println(s"  --> ${unitsByDim.mkString(" ")}")
     unitsByDim.mkString(" ")
   }
 

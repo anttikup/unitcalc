@@ -91,6 +91,36 @@ class QuantityTest extends munit.FunSuite {
     assert(force.dims == Dims(-2, 1, 1))
   }
 
+  test("can create by raising a quantity to a power") {
+    val Array(
+      dimensionless,
+      time,
+      length,
+      mass
+    ) = Quantity.createBaseQuantities(Array("dimensionless", "time", "length", "mass"))
+
+    val areaCheck = Quantity.pow(length, 2)
+
+    assert(areaCheck.dims == Dims(0, 2, 0))
+  }
+
+  test("can create by taking a root of another quantity") {
+    val Array(
+      dimensionless,
+      time,
+      length,
+      mass
+    ) = Quantity.createBaseQuantities(Array("dimensionless", "time", "length", "mass"))
+
+    val area = Quantity.create("area", Dims(0, 2, 0))
+    val lengthCheck = Quantity.root(area, 2)
+
+    assert(lengthCheck.dims == Dims(0, 1, 0))
+  }
+
+
+
+
   test("operations can create new implicit quantities") {
     val Array(
       dimensionless,

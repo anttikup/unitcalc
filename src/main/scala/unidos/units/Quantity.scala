@@ -9,6 +9,11 @@ case class Quantity(val name: String, dims: Dims) {
   }
 
   def *(other: Quantity): Quantity = {
+    if ( this.name == "dimensionless" ) { // TODO: don't check by name
+      return other
+    } else if ( other.name == "dimensionless" ) {
+      return this
+    }
     val newDims = this.dims * other.dims
     Quantity.byDims.get(newDims) match {
       case Some(quantity) => quantity
@@ -24,6 +29,8 @@ case class Quantity(val name: String, dims: Dims) {
     }
   }
 
+  def isDimensionless: Boolean =
+    dims.isDimensionless
 
 }
 class ImplicitQuantity(override val name: String, dims: Dims) extends Quantity(name, dims)
@@ -33,14 +40,6 @@ class NamedQuantity(override val name: String, dims: Dims) extends Quantity(name
 object Quantity {
   val byName = new HashMap[String, NamedQuantity]()
   val byDims = new HashMap[Dims, NamedQuantity]()
-
-  // create("dimensionless", Dims(new Array[Int](definedDims):_*))
-  // for (d <- Axis.values) {
-  //   create(
-  //     d.toString,
-  //     Dims.makeOneDimensionDims(d.id)
-  //   )
-  // }
 
   def create(name: String, dims: Dims): NamedQuantity = {
     val quantity = new NamedQuantity(name, dims)
@@ -83,6 +82,24 @@ object Quantity {
 
   def get(name: String): Option[Quantity] =
     byName.get(name)
+
+
+  def pow(quantity: Quantity, exp: Int): Quantity = {
+    val newDims = Dims.pow(quantity.dims, exp)
+    Quantity.byDims.get(newDims) match {
+      case Some(quantity) => quantity
+      case None => new ImplicitQuantity(Quantity.constructName(newDims), newDims)
+    }
+  }
+
+  def root(quantity: Quantity, exp: Int): Quantity = {
+    val newDims = Dims.root(quantity.dims, exp)
+    Quantity.byDims.get(newDims) match {
+      case Some(quantity) => quantity
+      case None => new ImplicitQuantity(Quantity.constructName(newDims), newDims)
+    }
+  }
+
 
   def getDefaultQuantityForDimension(dimension: Int, exponent: Int): Quantity = {
     val dims = Dims.makeOneDimensionDims(dimension, exponent)

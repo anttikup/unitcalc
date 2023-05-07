@@ -19,7 +19,24 @@ object Parser {
     "^" -> 15,
     "(" -> 0
   )
-  val unary = Set[String]("+", "-")
+
+  def isRightAssociative(operator: String): Boolean =
+    operator match {
+      case "^" => true
+      case _ => false
+    }
+
+  def comesBefore(prevOperator: String, nextOperator: String): Boolean = {
+    val tokenPrecedence = precedence.get(nextOperator).get
+    if (isRightAssociative(prevOperator)) {
+      precedence.get(prevOperator).get > tokenPrecedence
+    } else {
+      precedence.get(prevOperator).get >= tokenPrecedence
+    }
+  }
+
+
+  val unary = Set[String]("+", "-", "sqrt", "cbrt", "log", "ln")
   val binary = Set[String]("+", "-", "*", "/", "^", "•", "·")
 
 
@@ -31,11 +48,8 @@ object Parser {
     var exp = Exp.Operand
     var prev = Exp.Operator
     for ( token <- tokens ) {
-      println(s"$exp -> token: $token; stack ${stack.length}")
       if ( binary(token) && exp == Exp.Operator ) {
-        val tokenPrecedence = precedence.get(token).get
-
-        while (!stack.isEmpty && precedence.get(stack.top).get >= tokenPrecedence) {
+        while (!stack.isEmpty && comesBefore(stack.top, token) ) {
           output += stack.pop()
         }
 
@@ -59,8 +73,13 @@ object Parser {
         exp = Exp.Operator
         prev = Exp.Operand
       } else if ( !unary(token) && !binary(token) ) {
-        if ( prev == Exp.Operand )
-          stack.push("·")
+        if ( prev == Exp.Operand ) {
+          while (!stack.isEmpty && precedence.get(stack.top).get >= precedence.get("•").get) {
+            output += stack.pop()
+          }
+
+          stack.push("•")
+        }
         output += token
         exp = Exp.Operator
         prev = Exp.Operand
@@ -73,6 +92,6 @@ object Parser {
       output += stack.pop
     }
 
-    return output
+    return output.map { case "•" => "·"; case x => x }
   }
 }
