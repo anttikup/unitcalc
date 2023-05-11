@@ -28,7 +28,7 @@ object Env {
 }
 
 object Calc {
-  val operators = Set[String]("+", "-", "*", "/", "^", "=", "·")
+  val operators = Set[String]("+", "-", "−", "*", "·", "/", "^", "=")
 
   def preload: Unit = {
     Env.`import`("second", "s")
@@ -94,6 +94,11 @@ object Calc {
           varStack.push(left + right)
         }
         case "-" => {
+          val right = varStack.pop
+          val left = varStack.pop
+          varStack.push(left - right)
+        }
+        case "−" => {
           val right = varStack.pop
           val left = varStack.pop
           varStack.push(left - right)

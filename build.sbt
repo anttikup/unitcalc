@@ -35,4 +35,13 @@ lazy val unitcalc = project.in(file("."))
 
     // Tell ScalablyTyped that we manage `npm install` ourselves
     externalNpm := baseDirectory.value,
+
+    Compile / sourceGenerators += Def.task {
+      val inputFile = (Compile / resourceDirectory).value / "inc" / "help.html"
+      val html = IO.read(inputFile).trim()
+      val outputFile = (Compile / sourceManaged).value / "demo" / "Help.scala"
+      IO.write(outputFile, s"""package unitcalc
+      object Help { val text = \"\"\"$html\"\"\" }""")
+      Seq(outputFile)
+    }.taskValue
   )

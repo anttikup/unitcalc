@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #242434;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -76,12 +76,13 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #1aa11a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+    border-color: #646cff;
+  background-color: #1aa1a1;
 }
 button:focus,
 button:focus-visible {
@@ -113,10 +114,13 @@ input {
 
 .main {
     min-height: 50vh;
+    max-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto 1fr;
 }
 
 .bottom {
-    min-height: 50vh;
+    overflow: scroll;
 }
 
 .scroll-pane {
@@ -129,7 +133,7 @@ input {
 thead {
     position: sticky;
     top: 0;
-    background-color: #242424;
+    background-color: #242434;
 }
 
 table {
@@ -138,9 +142,33 @@ table {
 }
 
 tr:nth-child(even) {
-    background: #343434;
+    background: #343443;
 }
 
 tr:nth-child(even) td:first-child {
     text-align: right;
+}
+
+
+.help {
+    max-width: 40em;
+
+}
+
+.help p {
+    text-align: left;
+}
+
+.op {
+    background-color: #343434;
+    padding: 2px;
+}
+
+.code {
+    background-color: #343434;
+}
+
+.notice {
+    border: dotted 3px red;
+    padding: 0.5em;
 }

@@ -1,12 +1,14 @@
 package unitcalc
 
 import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.DomApi
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 import org.scalajs.dom
 
 import unidos.Calc
 import unidos.units.List
+import unitcalc.Help2
 
 
 // import javascriptLogo from "/javascript.svg"
@@ -40,7 +42,8 @@ object Main {
         child <-- errorSignal.map(msg => msg)
       ),
       div(
-        className := "bottom"
+        className := "bottom",
+        foreignHtmlElement(DomApi.unsafeParseHtmlString(Help2.text))
       )
     )
   end appElement
@@ -59,7 +62,7 @@ object Main {
             input(
               typ := "text",
               idAttr := "expr-input",
-              value <-- inputSignal.map(str => str.replace("*", "·")),
+              value <-- inputSignal.map(str => str.replace("*", "·").replace("-", "−")),
               onInput.mapToValue --> inputVar,
               onKeyPress --> (event => event.key match { case "Enter" => calculate() case _ => ; })
             )

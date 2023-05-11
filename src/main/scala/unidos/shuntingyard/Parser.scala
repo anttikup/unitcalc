@@ -12,6 +12,7 @@ object Parser {
   val precedence = Map[String, Int](
     "+" -> 5,
     "-" -> 5,
+    "−" -> 5,
     "*" -> 10,
     "·" -> 10,
     "/" -> 10,
@@ -36,8 +37,8 @@ object Parser {
   }
 
 
-  val unary = Set[String]("+", "-", "sqrt", "cbrt", "log", "ln")
-  val binary = Set[String]("+", "-", "*", "/", "^", "•", "·")
+  val unary = Set[String]("+", "-", "−", "sqrt", "cbrt", "log", "ln")
+  val binary = Set[String]("+", "-", "−", "*", "•", "·", "/", "^")
 
 
   def parse(expr: String): Queue[String] = {
