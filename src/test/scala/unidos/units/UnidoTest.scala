@@ -26,7 +26,7 @@ class UnidoTest extends munit.FunSuite {
     val unit = Unido("1")
 
     assert(unit.quantity == dimensionless)
-    assert(unit.name == Some("1"))
+    assert(unit.name == "1")
   }
 
 
@@ -133,7 +133,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(result.quantity == force)
     assert(result.multiplier == 1)
-    assert(result.name == Some("newton"))
+    assert(result.name == "newton")
   }
 
   test("multiplying a unit by a dimensionless unit keeps the original unit (reverse)") {
@@ -147,7 +147,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(result.quantity == force)
     assert(result.multiplier == 1)
-    assert(result.name == Some("newton"))
+    assert(result.name == "newton")
   }
 
   test("dividing a unit by a dimensionless unit keeps the original unit") {
@@ -161,7 +161,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(result.quantity == force)
     assert(result.multiplier == 1)
-    assert(result.name == Some("newton"))
+    assert(result.name == "newton")
   }
 
   test("can create an inverted unit by dividing dimensionless with a unit") {
@@ -173,7 +173,7 @@ class UnidoTest extends munit.FunSuite {
     var result = `1`/s
 
     assert(result.multiplier == 1)
-    assert(result.name == Some("1/second"))
+    assert(result.name == "1/second")
   }
 
 
@@ -186,7 +186,7 @@ class UnidoTest extends munit.FunSuite {
     val result = Unido.pow(dm, 2)
 
     assert(result.quantity.name == "length²")
-    assert(result.name == Some("metre²"))
+    assert(result.name == "metre²")
     assert(result.multiplier == Math.pow(0.1, 2))
 
   }
@@ -223,7 +223,7 @@ class UnidoTest extends munit.FunSuite {
     var result = Unido.pow(s, -1)
 
     assert(result.multiplier == 1)
-    assert(result.name == Some("second⁻¹"))
+    assert(result.name == "second⁻¹")
   }
 
   test("can create inverted unit") {
@@ -235,7 +235,7 @@ class UnidoTest extends munit.FunSuite {
     val Hz = Unido.create("hertz", Unido.pow(s, -1))
 
     assert(Hz.multiplier == 1)
-    assert(Hz.name == Some("hertz"))
+    assert(Hz.name == "hertz")
     assert(Hz.quantity.name == "frequency")
   }
 
@@ -281,8 +281,7 @@ class UnidoTest extends munit.FunSuite {
 
     val x = xxx / m
 
-    println(x)
-    assert(x.name == Some("xxx/metre"))
+    assert(x.name == "xxx/metre")
   }
 
   test("operations can create new compound units, division 2") {
@@ -296,9 +295,8 @@ class UnidoTest extends munit.FunSuite {
 
     val dsphm = ds / hm
 
-    println(s"RESULT: $dsphm")
     assert(dsphm.multiplier == 0.001)
-    assert(dsphm.name == Some("decisecond/hectometre"))
+    assert(dsphm.name == "decisecond/hectometre")
   }
 
   test("operations can create new compound units, multiplication") {
@@ -309,9 +307,8 @@ class UnidoTest extends munit.FunSuite {
 
     val kgm = kg * m
 
-    println(s"RESULT: $kgm")
     assert(kgm.multiplier == 1)
-    assert(kgm.name == Some("kilogram metre"))
+    assert(kgm.name == "kilogram metre")
   }
 
   test("can create new compound name units") {
@@ -321,7 +318,7 @@ class UnidoTest extends munit.FunSuite {
     val mps = Unido.create(CompoundName("metre" -> 1, "second" -> -1), 1, speed)
 
     assert(mps.multiplier == 1)
-    assert(mps.name == Some("metre/second"))
+    assert(mps.name == "metre/second")
     assert(Unido("metre/second") === mps)
   }
 
@@ -333,7 +330,7 @@ class UnidoTest extends munit.FunSuite {
     val mps = Unido.create(CompoundName("metre" -> 1, "second" -> -1), m/s)
 
     assert(mps.multiplier == 1)
-    assert(mps.name == Some("metre/second"))
+    assert(mps.name == "metre/second")
     assert(Unido("metre/second") === mps)
   }
 
@@ -345,7 +342,7 @@ class UnidoTest extends munit.FunSuite {
     val `m/s` = m/s
 
     assert(`m/s`.multiplier == 1)
-    assert(`m/s`.name == Some("metre/second"))
+    assert(`m/s`.name == "metre/second")
     assert(Unido("metre/second") === `m/s`)
   }
 

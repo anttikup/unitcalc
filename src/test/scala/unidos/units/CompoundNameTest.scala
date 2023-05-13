@@ -12,13 +12,11 @@ class CompoundNameTest extends munit.FunSuite {
 
   test("can create division") {
     val name = new CompoundName("metre" -> 1, "second" -> -1)
-    println(name)
     assert(name.toString == "metre/second")
   }
 
   test("can create inverted") {
     val name = new CompoundName("second" -> -1)
-    println(name)
     assert(name.toString == "1/second")
   }
 
@@ -34,19 +32,16 @@ class CompoundNameTest extends munit.FunSuite {
 
   test("can create division with power") {
     val name = new CompoundName("metre" -> 1, "second" -> -2)
-    println(name)
     assert(name.toString == "metre/second²")
   }
 
   test("can create division 2") {
     val name = new CompoundName("kilometre" -> 1, "hour" -> -1)
-    println(name)
     assert(name.toString == "kilometre/hour")
   }
 
   test("can invert") {
     val name = new CompoundName("kilometre" -> 1, "hour" -> -1)
-    println(name.invert)
     assert(name.invert.toString == "hour/kilometre")
   }
 
@@ -56,7 +51,6 @@ class CompoundNameTest extends munit.FunSuite {
 
     val result = name1 * name2
 
-    println(result)
     assert(result.toString == "centimetre kilometre/hour/kilogram")
   }
 
@@ -66,7 +60,6 @@ class CompoundNameTest extends munit.FunSuite {
 
     val result = name1 / name2
 
-    println(result)
     assert(result.toString == "hour kilometre/centimetre/kilogram")
   }
 }

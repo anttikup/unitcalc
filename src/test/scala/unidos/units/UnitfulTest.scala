@@ -112,7 +112,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 20)
-    assert(result.unit.name == Some("metre second"))
+    assert(result.unit.name == "metre second")
   }
 
   test("can divide by scalar") {
@@ -137,7 +137,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 / value2
 
     assert(result.amount == 5)
-    assert(result.unit.name == Some("metre/second"))
+    assert(result.unit.name == "metre/second")
   }
 
   test("can raise to an integer power") {
@@ -163,7 +163,7 @@ class UnitfulTest extends munit.FunSuite {
     val value = Unitful(2, dm)
     val result = Unitful.pow(value, 2)
 
-    assert(result.unit.name == Some("metre²"))
+    assert(result.unit.name == "metre²")
     assert(Util.almostEquals(result.amount, 4))
   }
 
@@ -214,7 +214,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 / value2
 
     assert(result.amount == 0.5)
-    assert(result.unit.name == Some("1/second"))
+    assert(result.unit.name == "1/second")
   }
 
   test("unit is kept on addition when multiple quantities shares the same dimension") {
@@ -244,7 +244,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 4)
-    assert(result.unit.name == Some("second"))
+    assert(result.unit.name == "second")
   }
 
   test("dimensionless unit is kept on multiplication by scalar Unitful") {
@@ -258,7 +258,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 0.4)
-    assert(result.unit.name == Some("radian"))
+    assert(result.unit.name == "radian")
   }
 
   test("throws when quantities differ even if they share the same dimension") {
@@ -334,7 +334,7 @@ class UnitfulTest extends munit.FunSuite {
 
     val result = Unitful(1, m) / Unitful(1, s)
 
-    assert(result.unit.name == Some("metre/second"))
+    assert(result.unit.name == "metre/second")
 
   }
 
@@ -346,7 +346,7 @@ class UnitfulTest extends munit.FunSuite {
 
     val result = Unitful(1, m) * Unitful(1, s)
 
-    assert(result.unit.name == Some("metre second"))
+    assert(result.unit.name == "metre second")
 
   }
 }

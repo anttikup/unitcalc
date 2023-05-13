@@ -9,10 +9,7 @@ import unidos.units.prefix.Prefix
 case class Unido(val multiplier: Double, val quantity: Quantity) {
 
   override def toString(): String =
-    name match {
-      case Some(name) => s"Unido($multiplier, $quantity; [name=\"${name}\", prefix=TODO])"
-      case None => s"Unido($multiplier, $quantity; [name=?, prefix=TODO])"
-    }
+    s"Unido($multiplier, $quantity; [name=\"${name}\", prefix=TODO])"
 
 
   def *(scalar: Double): Unido =
@@ -28,7 +25,7 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
       case None => {
-        new CompoundUnido(CompoundName(this.name.get -> 1, other.name.get -> 1), resultUnit)
+        new CompoundUnido(CompoundName(this.name -> 1, other.name -> 1), resultUnit)
       }
     }
 
@@ -47,7 +44,7 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
       case None =>
-        CompoundUnido(CompoundName(this.name.get -> 1, other.name.get -> -1), resultUnit)
+        CompoundUnido(CompoundName(this.name -> 1, other.name -> -1), resultUnit)
     }
 
   }
@@ -55,10 +52,10 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
   def ===(other: Unido): Boolean =
     this.quantity == other.quantity && Util.almostEquals(this.multiplier, other.multiplier)
 
-  def name: Option[String] = {
+  def name: String = {
     Unidos.get(this) match {
-      case Some(name) => Some(name)
-      case None => Some(Unido.constructName(this))
+      case Some(name) => name
+      case None => Unido.constructName(this)
     }
   }
 
@@ -145,7 +142,7 @@ object Unido {
 }
 
 class CompoundUnido(val _name: CompoundName, val unit: Unido) extends Unido(unit.multiplier, unit.quantity) {
-  override def name: Option[String] =
-    Some(_name.toString)
+  override def name: String =
+    _name.toString
 
 }
