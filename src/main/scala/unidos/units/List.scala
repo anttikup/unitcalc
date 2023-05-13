@@ -96,7 +96,7 @@ object List {
   val `m²` = Unido.create("square metre", m * m)
   val `m³` = Unido.create("cubic metre", m * m * m)
 
-  val `m/s` = Unido.create("meters per second", m / s)
+  //val `m/s` = Unido.create("meters per second", m / s)
 
 
   val dm = Unido.create("decimetre", m / 10)

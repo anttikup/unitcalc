@@ -20,6 +20,15 @@ class UnidoTest extends munit.FunSuite {
       )
     )
 
+  test("dimensionless returns 1") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val unit = Unido("1")
+
+    assert(unit.quantity == dimensionless)
+    assert(unit.name == Some("1"))
+  }
+
 
   test("can create") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
@@ -331,13 +340,13 @@ class UnidoTest extends munit.FunSuite {
   test("operations can create new implicit compound units") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
-    val s = Unido.create("second", Quantity.baseUnitOf("time"))
-    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
-    val mps = m/s
+    val s = Unido.create("second", 1, time)
+    val m = Unido.create("metre", 1, length)
+    val `m/s` = m/s
 
-    assert(mps.multiplier == 1)
-    assert(mps.name == Some("metre/second"))
-    assert(Unido("metre/second") === mps)
+    assert(`m/s`.multiplier == 1)
+    assert(`m/s`.name == Some("metre/second"))
+    assert(Unido("metre/second") === `m/s`)
   }
 
 

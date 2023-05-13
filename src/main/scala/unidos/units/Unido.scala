@@ -46,9 +46,8 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
 
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
-      case None => {
-        new CompoundUnido(CompoundName(this.name.get -> 1, other.name.get -> -1), resultUnit)
-      }
+      case None =>
+        CompoundUnido(CompoundName(this.name.get -> 1, other.name.get -> -1), resultUnit)
     }
 
   }
@@ -56,12 +55,12 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
   def ===(other: Unido): Boolean =
     this.quantity == other.quantity && Util.almostEquals(this.multiplier, other.multiplier)
 
-  def name: Option[String] =
+  def name: Option[String] = {
     Unidos.get(this) match {
       case Some(name) => Some(name)
       case None => Some(Unido.constructName(this))
     }
-
+  }
 
   def isDimensionless =
     quantity.isDimensionless
@@ -95,7 +94,8 @@ object Unido {
   def create(name: CompoundName, value: Unido): Unido =
     Unidos.create(name, value)
 
-  def UNITLESS: Unido = Unidos.get("1").get
+  def UNITLESS: Unido =
+    Unidos.get("1").get
 
   def pow(unit: Unido, exp: Int): Unido = {
     val newQuantity = Quantity.pow(unit.quantity, exp)
@@ -145,5 +145,7 @@ object Unido {
 }
 
 class CompoundUnido(val _name: CompoundName, val unit: Unido) extends Unido(unit.multiplier, unit.quantity) {
-  override def name: Option[String] = Some(_name.toString)
+  override def name: Option[String] =
+    Some(_name.toString)
+
 }

@@ -29,7 +29,10 @@ object Unidos {
       byName.put(name, value)
     }
 
-    byValue.put(value, name)
+
+    if ( !byValue.contains(value) ) {
+      byValue.put(value, name)
+    }
 
     value
   }

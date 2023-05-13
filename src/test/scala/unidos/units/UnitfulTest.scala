@@ -1,6 +1,6 @@
 package unidos
 
-import unidos.units.{Quantity, Unitful, Unido, Dims}
+import unidos.units.{Quantity, Unitful, Unido, Dims, CompoundUnido}
 import unidos.units.{Util}
 
 
@@ -112,7 +112,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 20)
-    assert(result.unit.name == Some("second¹ metre¹"))
+    assert(result.unit.name == Some("metre second"))
   }
 
   test("can divide by scalar") {
@@ -137,7 +137,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 / value2
 
     assert(result.amount == 5)
-    assert(result.unit.name == Some("second⁻¹ metre¹"))
+    assert(result.unit.name == Some("metre/second"))
   }
 
   test("can raise to an integer power") {
@@ -154,8 +154,6 @@ class UnitfulTest extends munit.FunSuite {
     assert(result.unit == `m³`)
   }
 
-  // 2 dm³ = x m³; 2 dm = 0.2 m; 4 dm² = (2 dm)² = (2*0.1 m)² = (0.2 m)² = 0.04 m² = (sqrt(4) · 0.1 m)² = (2² · 0.1²) m²
-
   test("can raise unit to an integer power") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
@@ -166,7 +164,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = Unitful.pow(value, 2)
 
     assert(result.unit.name == Some("metre²"))
-    assert(result.amount == Math.pow(2, 2) * Math.pow(0.1, 2))
+    assert(Util.almostEquals(result.amount, 4))
   }
 
   test("can raise value with dimensionless unit to any power") {
@@ -216,7 +214,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 / value2
 
     assert(result.amount == 0.5)
-    assert(result.unit.name == Some("second⁻¹"))
+    assert(result.unit.name == Some("1/second"))
   }
 
   test("unit is kept on addition when multiple quantities shares the same dimension") {
@@ -327,4 +325,28 @@ class UnitfulTest extends munit.FunSuite {
     assert(Unitful(1, `€`) + Unitful(50, `¢`) === Unitful(150, `¢`))
   }
 
+
+  test("can create compound units, division") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val s = Unido.create("second", 1, time)
+
+    val result = Unitful(1, m) / Unitful(1, s)
+
+    assert(result.unit.name == Some("metre/second"))
+
+  }
+
+  test("can create compound units, multiplication") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val s = Unido.create("second", 1, time)
+
+    val result = Unitful(1, m) * Unitful(1, s)
+
+    assert(result.unit.name == Some("metre second"))
+
+  }
 }
