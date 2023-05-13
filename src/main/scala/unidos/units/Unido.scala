@@ -4,6 +4,8 @@ import unidos.units.{Dims, Unidos}
 import unidos.units.prefix.Prefix
 
 
+
+
 case class Unido(val multiplier: Double, val quantity: Quantity) {
 
   override def toString(): String =
@@ -21,7 +23,15 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     val dimsOther = other.quantity
 
     val resultQuantity = dimsThis * dimsOther
-    Unido(this.multiplier * other.multiplier, resultQuantity)
+    val resultUnit = Unido(this.multiplier * other.multiplier, resultQuantity)
+
+    Unidos.get(resultUnit) match {
+      case Some(name) => resultUnit
+      case None => {
+        new CompoundUnido(CompoundName(this.name.get -> 1, other.name.get -> 1), resultUnit)
+      }
+    }
+
   }
 
   def /(scalar: Double): Unido =
@@ -32,7 +42,15 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     val dimsOther = other.quantity
 
     val resultQuantity = dimsThis / dimsOther
-    Unido(this.multiplier * other.multiplier, resultQuantity)
+    val resultUnit = Unido(this.multiplier / other.multiplier, resultQuantity)
+
+    Unidos.get(resultUnit) match {
+      case Some(name) => resultUnit
+      case None => {
+        new CompoundUnido(CompoundName(this.name.get -> 1, other.name.get -> -1), resultUnit)
+      }
+    }
+
   }
 
   def ===(other: Unido): Boolean =
@@ -61,8 +79,12 @@ object Unido {
     }
   }
 
-
   def create(name: String, multiplier: Double, quantity: Quantity): Unido = {
+    val value = new Unido(multiplier, quantity)
+    Unidos.create(name, value)
+  }
+
+  def create(name: CompoundName, multiplier: Double, quantity: Quantity): Unido = {
     val value = new Unido(multiplier, quantity)
     Unidos.create(name, value)
   }
@@ -70,6 +92,8 @@ object Unido {
   def create(name: String, value: Unido): Unido =
     Unidos.create(name, value)
 
+  def create(name: CompoundName, value: Unido): Unido =
+    Unidos.create(name, value)
 
   def UNITLESS: Unido = Unidos.get("1").get
 
@@ -118,4 +142,8 @@ object Unido {
   def constructName(unit: Unido): String =
     constructName(unit.quantity.dims)
 
+}
+
+class CompoundUnido(val _name: CompoundName, val unit: Unido) extends Unido(unit.multiplier, unit.quantity) {
+  override def name: Option[String] = Some(_name.toString)
 }

@@ -8,7 +8,7 @@ import org.scalajs.dom
 
 import unidos.Calc
 import unidos.units.List
-import unitcalc.Help2
+import unitcalc.Help
 
 
 // import javascriptLogo from "/javascript.svg"
@@ -43,7 +43,7 @@ object Main {
       ),
       div(
         className := "bottom",
-        foreignHtmlElement(DomApi.unsafeParseHtmlString(Help2.text))
+        foreignHtmlElement(DomApi.unsafeParseHtmlString(Help.text))
       )
     )
   end appElement

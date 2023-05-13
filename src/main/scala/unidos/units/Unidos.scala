@@ -34,6 +34,12 @@ object Unidos {
     value
   }
 
+  def create(compoundName: CompoundName, value: Unido): Unido = {
+    create(compoundName.toString, value)
+
+
+  }
+
   def get(name: String): Option[Unido] =
     byName.get(name)
 

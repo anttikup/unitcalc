@@ -1,6 +1,6 @@
 package unidos
 
-import unidos.units.{Dims, Quantity, Unido, Unidos}
+import unidos.units.{CompoundName, Dims, Quantity, Unido, Unidos}
 
 
 
@@ -20,10 +20,6 @@ class UnidoTest extends munit.FunSuite {
       )
     )
 
-
-  def almostEquals(a: Unido, b: Unido) = {
-    a.quantity == b.quantity && Math.abs(a.multiplier - b.multiplier) < 0.0001
-  }
 
   test("can create") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
@@ -168,7 +164,7 @@ class UnidoTest extends munit.FunSuite {
     var result = `1`/s
 
     assert(result.multiplier == 1)
-    assert(result.name == Some("second⁻¹"))
+    assert(result.name == Some("1/second"))
   }
 
 
@@ -264,7 +260,7 @@ class UnidoTest extends munit.FunSuite {
     assert(sr != `1`)
   }
 
-  test("operations can create new implicit units") {
+  test("operations can create new units, division") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val s = Unido.create("second", Quantity.baseUnitOf("time"))
@@ -276,7 +272,72 @@ class UnidoTest extends munit.FunSuite {
 
     val x = xxx / m
 
-    assert(x.name == Some("second⁻⁹ metre⁸ kilogram⁹"))
+    println(x)
+    assert(x.name == Some("xxx/metre"))
+  }
+
+  test("operations can create new compound units, division 2") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val s = Unido.create("second", Quantity.baseUnitOf("time"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+
+    val ds = Unido.create("decisecond", s / 10)
+    val hm = Unido.create("hectometre", m * 100)
+
+    val dsphm = ds / hm
+
+    println(s"RESULT: $dsphm")
+    assert(dsphm.multiplier == 0.001)
+    assert(dsphm.name == Some("decisecond/hectometre"))
+  }
+
+  test("operations can create new compound units, multiplication") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val kg = Unido.create("kilogram", Quantity.baseUnitOf("mass"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+
+    val kgm = kg * m
+
+    println(s"RESULT: $kgm")
+    assert(kgm.multiplier == 1)
+    assert(kgm.name == Some("kilogram metre"))
+  }
+
+  test("can create new compound name units") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val speed = Quantity.create("speed", length / time)
+    val mps = Unido.create(CompoundName("metre" -> 1, "second" -> -1), 1, speed)
+
+    assert(mps.multiplier == 1)
+    assert(mps.name == Some("metre/second"))
+    assert(Unido("metre/second") === mps)
+  }
+
+  test("can create new compound name units, alt") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val s = Unido.create("second", Quantity.baseUnitOf("time"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+    val mps = Unido.create(CompoundName("metre" -> 1, "second" -> -1), m/s)
+
+    assert(mps.multiplier == 1)
+    assert(mps.name == Some("metre/second"))
+    assert(Unido("metre/second") === mps)
+  }
+
+  test("operations can create new implicit compound units") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val s = Unido.create("second", Quantity.baseUnitOf("time"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+    val mps = m/s
+
+    assert(mps.multiplier == 1)
+    assert(mps.name == Some("metre/second"))
+    assert(Unido("metre/second") === mps)
   }
 
 
