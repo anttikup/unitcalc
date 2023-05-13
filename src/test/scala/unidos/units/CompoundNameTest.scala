@@ -62,4 +62,16 @@ class CompoundNameTest extends munit.FunSuite {
 
     assert(result.toString == "hour kilometre/centimetre/kilogram")
   }
+
+  test("can multiply two of the same unit") {
+    val name1 = new CompoundName("kilometre" -> 1, "hour" -> -1)
+    val name2 = new CompoundName("kilometre" -> 1, "hour" -> -1)
+
+    val result = name1 * name2
+
+    println(s"result: $result")
+    assert(result.toString == "kilometre²/hour²")
+  }
+
+
 }

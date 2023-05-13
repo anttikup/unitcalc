@@ -2,7 +2,7 @@ package unidos
 
 import unidos.Calc
 import unidos.units.List
-import unidos.units.{Unido, Unitful}
+import unidos.units.{CompoundName, Unido, Unitful}
 
 
 class CalcTest extends munit.FunSuite {
@@ -36,9 +36,12 @@ class CalcTest extends munit.FunSuite {
     assert(result === Unitful(6))
   }
 
-  test("multiplication with units") {
+  test("multiplication with unit with itself") {
     val result = Calc.calc("2 m · 3 m")
-    assert(result === Unitful(6, Unido("square metre")))
+    val pow = CompoundName("metre" -> 2)
+    println(s"resutl: $result")
+    println(s"pow: $pow")
+    assert(result === Unitful(6, Unido.pow(Unido("metre"), 2)))
   }
 
   test("unitless division") {
@@ -53,12 +56,12 @@ class CalcTest extends munit.FunSuite {
 
   test("power with units") {
     val result = Calc.calc("(2 m) ^ 2")
-    assert(result === Unitful(4, Unido("square metre")))
+    assert(result === Unitful(4, Unido.pow(Unido("metre"), 2)))
   }
 
   test("power of unit") {
     val result = Calc.calc("2 m^2")
-    assert(result === Unitful(2, Unido("square metre")))
+    assert(result === Unitful(2, Unido.pow(Unido("metre"), 2)))
   }
 
   test("power is right associative") {

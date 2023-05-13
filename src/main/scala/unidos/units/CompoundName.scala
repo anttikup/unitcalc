@@ -19,8 +19,11 @@ case class NamePart(text: String, value: Int) {
 }
 
 case class CompoundName(args: (String, Int)*) {
-  val parts = args.map(arg => NamePart(arg._1, arg._2))
-                  .sortWith(
+  val combined = args.groupBy { case (s1, s2) => (s1, s2) }
+                      .values.map(_.reduce((s1, s2) => (s1._1, s1._2 + s2._2)))
+                      .map(arg => NamePart(arg._1, arg._2))
+  val parts = combined.toList
+                      .sortWith(
                      (a, b) =>
                        if (a.value == b.value)
                          a.text > b.text
@@ -53,11 +56,14 @@ case class CompoundName(args: (String, Int)*) {
     CompoundName(this.parts.map(part => part.invert.asTuple):_*)
 
   def *(other: CompoundName): CompoundName = {
-    CompoundName((args ++ other.args):_*)
+
+    val combined = (args ++ other.args)
+    println(s"res: $combined")
+    CompoundName(combined.toList:_*)
   }
 
   def /(other: CompoundName): CompoundName = {
-    CompoundName((args ++ other.invert.args):_*)
+    CompoundName(((args ++ other.invert.args).toMap.toList):_*)
   }
 
 }

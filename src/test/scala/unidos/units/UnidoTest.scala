@@ -346,5 +346,18 @@ class UnidoTest extends munit.FunSuite {
     assert(Unido("metre/second") === `m/s`)
   }
 
+  test("multiplying unit by itself creates a squared unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val `m²` = m*m
+
+    println(s"m²: ${`m²`}")
+
+    assert(`m²`.multiplier == 1)
+    assert(`m²`.name == "metre²")
+    //assert(Unido("metre²") === `m²`)
+  }
+
 
 }

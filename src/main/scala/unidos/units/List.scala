@@ -93,9 +93,6 @@ object List {
   val Sv = Unido.create("sievert", J/kg)
   val kat = Unido.create("katal", mol/s)
 
-  val `m²` = Unido.create("square metre", m * m)
-  val `m³` = Unido.create("cubic metre", m * m * m)
-
   //val `m/s` = Unido.create("meters per second", m / s)
 
 
