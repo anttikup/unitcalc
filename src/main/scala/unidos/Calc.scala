@@ -8,62 +8,62 @@ import unidos.units.{Unido, Unidos, Unitful}
 
 
 object Env {
-  val defs = new HashMap[String, Unido]()
+  val defs = new HashMap[String, Unitful]()
 
-  def `import`(name: String, symbol: String): Unido = {
+  def setVariable(symbol: String, value: Unitful): Unitful = {
+    defs.put(symbol, value)
+    value
+  }
+
+  def setSymbol(symbol: String, name: String): Unitful = {
     Unidos.get(name) match {
-      case Some(unit) => {
-        println(s"Import: $name -> $symbol")
-        defs.put(symbol, unit)
-        unit
-      }
-      case None => {
-        throw new Exception(s"No such unit $name")
-      }
+      case Some(unit) => setVariable(symbol, Unitful(1, unit))
+      case None => throw new Error(s"No such unit: $name")
     }
   }
 
-  def get(symbol: String): Option[Unido] =
+  def get(symbol: String): Option[Unitful] =
     defs.get(symbol)
+
 }
 
 object Calc {
   val operators = Set[String]("+", "-", "−", "*", "·", "/", "^", "=")
 
   def preload: Unit = {
-    Env.`import`("second", "s")
-    Env.`import`("metre", "m")
-    Env.`import`("kilogram", "kg")
-    Env.`import`("ampere", "A")
-    Env.`import`("kelvin", "K")
-    Env.`import`("mole", "mol")
-    Env.`import`("candela", "cd")
-    Env.`import`("radian", "rad")
-    Env.`import`("steradian", "sr")
-    Env.`import`("hertz", "Hz")
-    Env.`import`("newton", "N")
-    Env.`import`("pascal", "Pa")
-    Env.`import`("joule", "J")
-    Env.`import`("watt", "W")
-    Env.`import`("volt", "V")
-    Env.`import`("coulomb", "C")
-    Env.`import`("ohm", "`Ω`")
-    Env.`import`("siemens", "S")
-    Env.`import`("weber", "Wb")
-    Env.`import`("tesla", "T")
-    Env.`import`("henry", "H")
-    Env.`import`("lumen", "lm")
-    Env.`import`("lux", "lx")
-    Env.`import`("becquerel", "Bq")
-    Env.`import`("gray", "Gy")
-    Env.`import`("sievert", "Sv")
-    Env.`import`("katal", "kat")
+    Env.setSymbol("s", "second")
+    Env.setSymbol("m", "metre")
+    Env.setSymbol("kg", "kilogram")
+    Env.setSymbol("A", "ampere")
+    Env.setSymbol("K", "kelvin")
+    Env.setSymbol("mol", "mole")
+    Env.setSymbol("cd", "candela")
+    Env.setSymbol("rad", "radian")
+    Env.setSymbol("sr", "steradian")
+    Env.setSymbol("Hz", "hertz")
+    Env.setSymbol("N", "newton")
+    Env.setSymbol("Pa", "pascal")
+    Env.setSymbol("J", "joule")
+    Env.setSymbol("W", "watt")
+    Env.setSymbol("V", "volt")
+    Env.setSymbol("C", "coulomb")
+    Env.setSymbol("`Ω`", "ohm")
+    Env.setSymbol("S", "siemens")
+    Env.setSymbol("Wb", "weber")
+    Env.setSymbol("T", "tesla")
+    Env.setSymbol("H", "henry")
+    Env.setSymbol("lm", "lumen")
+    Env.setSymbol("lx", "lux")
+    Env.setSymbol("Bq", "becquerel")
+    Env.setSymbol("Gy", "gray")
+    Env.setSymbol("Sv", "sievert")
+    Env.setSymbol("kat", "katal")
 
-    Env.`import`("minute", "min")
-    Env.`import`("hour", "h")
+    Env.setSymbol("min", "minute")
+    Env.setSymbol("h", "hour")
 
-    Env.`import`("kilometre", "km")
-    Env.`import`("gram", "g")
+    Env.setSymbol("km", "kilometre")
+    Env.setSymbol("g", "gram")
   }
 
   def calc(expr: String): Unitful = {
@@ -123,13 +123,24 @@ object Calc {
         }
         case variable => {
           Env.get(variable) match {
-            case Some(unit) => {
-              varStack.push(new Unitful(1, unit))
+            case Some(value) => {
+              varStack.push(value)
             }
             case None => {
-              val d = variable.toDouble
-              val newValue = new Unitful(d)
-              varStack.push(newValue)
+              if (variable.startsWith("\"") && variable.endsWith("\"")) {
+                val unitName = variable.substring(1, variable.length - 1)
+                Unidos.get(unitName) match {
+                  case Some(unit) => {
+                    val newValue = new Unitful(1, unit)
+                    varStack.push(newValue)
+                  }
+                  case None => throw new Error(s"No such unit: $unitName")
+                }
+              } else {
+                val d = variable.toDouble
+                val newValue = new Unitful(d)
+                varStack.push(newValue)
+              }
             }
           }
         }
@@ -140,13 +151,13 @@ object Calc {
   }
 
   def eval(expr: String): Unitful = {
-    val pattern = "^ *([^ =]+) *: *([^ ]+)$".r
+    val pattern = "^ *([^ =]+) *= *(.+)$".r
     expr match {
-      case pattern(symbol, full) => {
-        val unit = Env.`import`(full, symbol)
-        new Unitful(1, unit)
+      case pattern(symbol, expr) => {
+        println(s"expr: $expr")
+        Env.setVariable(symbol, calc(expr))
       }
-      case _ => calc(expr)
+      case _ => Env.setVariable("_", calc(expr))
     }
   }
 }

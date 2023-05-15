@@ -3,6 +3,20 @@
     Note: this app is under development. It might give wrong answers!
   </p>
   <h2>Help</h2>
+  <h3>Symbols</h3>
+  <p>
+    You can always use the full name of a unit by quoting it.
+  </p>
+  <p class="code">
+    2 "foot" + 3 "millimetre"
+  </p>
+  <p>
+    To define a symbol for the unit, set the full name as the value of a variable.
+  </p>
+  <p class="code">
+    cm = "centimetre"
+  </p>
+
   <h3>Operators</h3>
   <p>
     Supported operators: <span class="op">+</span>, <span class="op">−</span>, <span class="op">·</span> (or <span class="op">*</span>), <span class="op">/</span>, and <span class="op">^</span> (exponentiation).
@@ -19,17 +33,22 @@
   <p class="code">
     22 cm / 93 ms ? m/s
   </p>
-  <h3>Symbols</h3>
   <p>
-    To use a unit you must define a symbol for it. Currently there are only SI units. Symbols for base units (<span class="op">m</span>, <span class="op">s</span>, ...) are defined by default, and symbols for other multiples must be defined separately. To define a symbol for a unit:
+    Use <span class="op">=</span> to set variables.
   </p>
   <p class="code">
-    cm: centimetre
+    length = 9 cm + 3 in
   </p>
   <p>
-    Multiple definitions:
+    Special variable <span class="op">_</span> always holds the last result.
   </p>
   <p class="code">
-    cm: centimetre; mm: millimetre; km: kilometre
+    length = 9 cm + 3 in
+  </p>
+  <p>
+    You can use semicolon (<span class="op">;</span>) to separate expressions.
+  </p>
+  <p class="code">
+    cm = "centimetre"; mm = "millimetre"; km = "kilometre"
   </p>
 </div>
