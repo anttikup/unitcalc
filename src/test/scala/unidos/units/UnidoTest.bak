@@ -1,40 +1,3 @@
-package unidos
-
-import unidos.units.{CompoundName, Dims, Quantity, Unido, Unidos}
-
-
-
-
-class UnidoTest extends munit.FunSuite {
-  def createBasicDims: Array[Quantity] =
-    Quantity.createBaseQuantities(
-      Array(
-        "dimensionless",
-        "time",
-        "length",
-        "mass",
-        "electric current",
-        "temperature",
-        "amount of substance",
-        "luminous intensity"
-      )
-    )
-
-  override def beforeEach(context: BeforeEach): Unit = {
-    Quantity.clear
-    createBasicDims
-    Unidos.clear
-  }
-
-  test("dimensionless returns 1") {
-    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
-
-    val unit = Unido.create("1", 1, dimensionless)
-
-    assert(unit.quantity == dimensionless)
-    assert(unit.name.toString == "1")
-  }
-
   test("can create") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
@@ -123,6 +86,7 @@ class UnidoTest extends munit.FunSuite {
     val m = Unido.create("metre", 1, length)
     val Nm = Unido.create("newton-metre", N * m)
 
+    println(s"res: $Nm")
     assert(Nm.multiplier == 1)
     assert(Nm.quantity == torque)
   }
@@ -177,6 +141,8 @@ class UnidoTest extends munit.FunSuite {
 
     var result = `1`/s
 
+    println(s"res: $result")
+
     assert(result.multiplier == 1)
     assert(result.name.toString == "1/second")
   }
@@ -189,6 +155,8 @@ class UnidoTest extends munit.FunSuite {
     val dm = Unido.create("decimetre", m * 0.1)
 
     val result = Unido.pow(dm, 2)
+    println(s"res: $result")
+
 
     assert(result.quantity.name == "length²")
     assert(result.name.toString == "decimetre²")
@@ -224,7 +192,9 @@ class UnidoTest extends munit.FunSuite {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val s = Unido.create("second", 1, time)
+
     var result = Unido.pow(s, -1)
+    println(s"res: $result")
 
     assert(result.multiplier == 1)
     assert(result.name.toString == "1/second")
@@ -348,6 +318,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(`m/s`.multiplier == 1)
     assert(`m/s`.name.toString == "metre/second")
+    assert(Unido("metre/second") === `m/s`)
   }
 
   test("multiplying unit by itself creates a squared unit") {
@@ -401,5 +372,3 @@ class UnidoTest extends munit.FunSuite {
     assert(test.multiplier == 1)
     assert(test.name.toString == "kilogram")
   }
-
-}

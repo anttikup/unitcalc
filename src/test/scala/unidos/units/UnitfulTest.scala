@@ -1,6 +1,6 @@
 package unidos
 
-import unidos.units.{Quantity, Unitful, Unido, Dims, CompoundUnido}
+import unidos.units.{Quantity, Unitful, Unido, Unidos, Dims, CompoundUnido}
 import unidos.units.{Util}
 
 
@@ -20,6 +20,11 @@ class UnitfulTest extends munit.FunSuite {
       )
     )
 
+  override def beforeEach(context: BeforeEach): Unit = {
+    Quantity.clear
+    createBasicDims
+    Unidos.clear
+  }
 
   test("can create") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
@@ -112,7 +117,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 20)
-    assert(result.unit.name == "metre second")
+    assert(result.unit.name.toString == "metre second")
   }
 
   test("can divide by scalar") {
@@ -137,7 +142,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 / value2
 
     assert(result.amount == 5)
-    assert(result.unit.name == "metre/second")
+    assert(result.unit.name.toString == "metre/second")
   }
 
   test("can raise to an integer power") {
@@ -163,7 +168,7 @@ class UnitfulTest extends munit.FunSuite {
     val value = Unitful(2, dm)
     val result = Unitful.pow(value, 2)
 
-    assert(result.unit.name == "metre²")
+    assert(result.unit.name.toString == "decimetre²")
     assert(Util.almostEquals(result.amount, 4))
   }
 
@@ -207,14 +212,15 @@ class UnitfulTest extends munit.FunSuite {
   test("can invert by dividing one with it") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
-    val s = Unido.create("second", 1, time)
+    val kg = Unido.create("kilogram", 1, mass)
 
     val value1 = Unitful(1)
-    val value2 = Unitful(2, s)
+    val value2 = Unitful(2, kg)
+
     val result = value1 / value2
 
     assert(result.amount == 0.5)
-    assert(result.unit.name == "1/second")
+    assert(result.unit.name.toString == "1/kilogram")
   }
 
   test("unit is kept on addition when multiple quantities shares the same dimension") {
@@ -244,7 +250,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 4)
-    assert(result.unit.name == "second")
+    assert(result.unit.name.toString == "second")
   }
 
   test("dimensionless unit is kept on multiplication by scalar Unitful") {
@@ -258,7 +264,7 @@ class UnitfulTest extends munit.FunSuite {
     val result = value1 * value2
 
     assert(result.amount == 0.4)
-    assert(result.unit.name == "radian")
+    assert(result.unit.name.toString == "radian")
   }
 
   test("throws when quantities differ even if they share the same dimension") {
@@ -334,7 +340,7 @@ class UnitfulTest extends munit.FunSuite {
 
     val result = Unitful(1, m) / Unitful(1, s)
 
-    assert(result.unit.name == "metre/second")
+    assert(result.unit.name.toString == "metre/second")
 
   }
 
@@ -346,7 +352,7 @@ class UnitfulTest extends munit.FunSuite {
 
     val result = Unitful(1, m) * Unitful(1, s)
 
-    assert(result.unit.name == "metre second")
+    assert(result.unit.name.toString == "metre second")
 
   }
 }

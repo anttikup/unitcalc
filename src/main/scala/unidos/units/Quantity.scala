@@ -58,13 +58,13 @@ object Quantity {
     Dims.numberOfDims = names.length - 1
 
     var output = Array[Quantity]()
-    for ( case (name, i) <- names.zipWithIndex ) {
-      if ( i == 0 ) {
+    for ( case (name, index) <- names.zipWithIndex ) {
+      if ( index == 0 ) {
         output = output :+ create(names(0), Dims(new Array[Int](Dims.numberOfDims):_*))
       } else {
         output = output :+ create(
           name,
-          Dims.makeOneDimensionDims(i - 1)
+          Dims.makeOneDimensionDims(index - 1)
         )
       }
     }
@@ -83,6 +83,11 @@ object Quantity {
   def get(name: String): Option[Quantity] =
     byName.get(name)
 
+
+  def clear: Unit = {
+    byName.clear
+    byDims.clear
+  }
 
   def pow(quantity: Quantity, exp: Int): Quantity = {
     val newDims = Dims.pow(quantity.dims, exp)

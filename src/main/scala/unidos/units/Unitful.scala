@@ -20,7 +20,9 @@ class Unitful(val amount: Double, val unit: Unido) {
     }
 
     val resultUnit = Quantity.baseUnitOf(this.unit.quantity.name)
-    Unitful(this.amount * this.unit.multiplier + other.amount * other.unit.multiplier, resultUnit)
+    val resultAmount = this.amount * this.unit.multiplier + other.amount * other.unit.multiplier
+
+    Unitful(resultAmount, resultUnit)
   }
 
   def -(other: Unitful): Unitful = {
@@ -29,7 +31,9 @@ class Unitful(val amount: Double, val unit: Unido) {
     }
 
     val resultUnit = Quantity.baseUnitOf(this.unit.quantity.name)
-    Unitful(this.amount * this.unit.multiplier - other.amount * other.unit.multiplier, resultUnit)
+    val resultAmount = this.amount * this.unit.multiplier - other.amount * other.unit.multiplier
+
+    Unitful(resultAmount, resultUnit)
   }
 
   def *(scalar: Double): Unitful =

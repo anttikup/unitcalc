@@ -25,7 +25,7 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
       case None => {
-        new CompoundUnido(CompoundName(this.name -> 1, other.name -> 1), resultUnit)
+        new CompoundUnido(this.name * other.name, resultUnit)
       }
     }
 
@@ -44,7 +44,7 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
       case None =>
-        CompoundUnido(CompoundName(this.name -> 1, other.name -> -1), resultUnit)
+        CompoundUnido(this.name / other.name, resultUnit)
     }
 
   }
@@ -52,9 +52,9 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
   def ===(other: Unido): Boolean =
     this.quantity == other.quantity && Util.almostEquals(this.multiplier, other.multiplier)
 
-  def name: String = {
+  def name: CompoundName = {
     Unidos.get(this) match {
-      case Some(name) => name
+      case Some(name) => CompoundName.fromString(name)
       case None => Unido.constructName(this)
     }
   }
@@ -62,6 +62,7 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
   def isDimensionless =
     quantity.isDimensionless
 
+  def value = this
 }
 
 
@@ -77,26 +78,34 @@ object Unido {
 
   def create(name: String, multiplier: Double, quantity: Quantity): Unido = {
     val value = new Unido(multiplier, quantity)
-    Unidos.create(name, value)
+    Unidos.create(name, value.value)
   }
 
   def create(name: CompoundName, multiplier: Double, quantity: Quantity): Unido = {
     val value = new Unido(multiplier, quantity)
-    Unidos.create(name, value)
+    Unidos.create(name, value.value)
   }
 
   def create(name: String, value: Unido): Unido =
-    Unidos.create(name, value)
+    Unidos.create(name, value.value)
 
   def create(name: CompoundName, value: Unido): Unido =
-    Unidos.create(name, value)
+    Unidos.create(name, value.value)
 
   def UNITLESS: Unido =
     Unidos.get("1").get
 
   def pow(unit: Unido, exp: Int): Unido = {
     val newQuantity = Quantity.pow(unit.quantity, exp)
-    new Unido(Math.pow(unit.multiplier, exp), newQuantity)
+    val resultUnit = new Unido(Math.pow(unit.multiplier, exp), newQuantity)
+
+    Unidos.get(resultUnit) match {
+      case Some(name) => resultUnit
+      case None => {
+        val name = CompoundName.pow(unit.name, exp)
+        new CompoundUnido(name, resultUnit)
+      }
+    }
   }
 
   def root(unit: Unido, exp: Int): Unido = {
@@ -120,29 +129,25 @@ object Unido {
     }
   }
 
-  def constructName(dims: Dims): String = {
+  def constructName(dims: Dims): CompoundName = {
     if ( dims.isElementary ) {
       //throw new Error(s"Can't dismember elementary dims: $dims")
-      return "?"
+      return CompoundName("?" -> 1)
     }
 
     val unitsByDim = dims.zipWithIndex.map({
       case (dimensionExponent, i) =>
-        if (dimensionExponent != 0)
-          getExponentedUnitForDimension(i, dimensionExponent)
-        else ""
-    }).filter(value => value != "")
+        (getDefaultUnitForDimension(i, 1).name.toString, dimensionExponent)
+    }).filter(tuple => tuple._1 != "1" && tuple._2 != 0)
 
-    unitsByDim.mkString(" ")
+    CompoundName(unitsByDim:_*)
   }
 
-  def constructName(unit: Unido): String =
+  def constructName(unit: Unido): CompoundName =
     constructName(unit.quantity.dims)
 
 }
 
-class CompoundUnido(val _name: CompoundName, val unit: Unido) extends Unido(unit.multiplier, unit.quantity) {
-  override def name: String =
-    _name.toString
-
+class CompoundUnido(override val name: CompoundName, val unit: Unido) extends Unido(unit.multiplier, unit.quantity) {
+  override def value = unit
 }

@@ -22,15 +22,22 @@ case class CompoundName(args: (String, Int)*) {
   val combined = args.groupBy { case (s1, s2) => (s1, s2) }
                       .values.map(_.reduce((s1, s2) => (s1._1, s1._2 + s2._2)))
                       .map(arg => NamePart(arg._1, arg._2))
-  val parts = combined.toList
-                      .sortWith(
-                     (a, b) =>
-                       if (a.value == b.value)
-                         a.text > b.text
-                       else
-                         a.value < b.value
-                  )
-                  .reverse
+
+
+  val tmp = combined.toList
+                    .sortWith(
+                      (a, b) =>
+                        if (a.value == b.value)
+                          a.text > b.text
+                        else
+                          a.value < b.value
+                    )
+                    .reverse
+
+  val parts = if (tmp.length == 1)
+                tmp
+              else
+                tmp.filter(item => item.text != "1")
 
 
   override def toString: String = {
@@ -56,14 +63,29 @@ case class CompoundName(args: (String, Int)*) {
     CompoundName(this.parts.map(part => part.invert.asTuple):_*)
 
   def *(other: CompoundName): CompoundName = {
-
     val combined = (args ++ other.args)
-    println(s"res: $combined")
     CompoundName(combined.toList:_*)
   }
 
   def /(other: CompoundName): CompoundName = {
     CompoundName(((args ++ other.invert.args).toMap.toList):_*)
   }
+
+}
+
+
+object CompoundName {
+  implicit def fromString(str: String): CompoundName =
+    CompoundName(str -> 1)
+
+  def ensure(name: String): CompoundName =
+    fromString(name)
+
+  def ensure(name: CompoundName): CompoundName =
+    name
+
+
+  def pow(name: CompoundName, exp: Int): CompoundName =
+    CompoundName(name.parts.map(part => part.text -> part.value * exp):_*)
 
 }

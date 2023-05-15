@@ -2,8 +2,10 @@ package unidos
 
 import unidos.units.{Dims, Quantity}
 
-
 class QuantityTest extends munit.FunSuite {
+  override def beforeEach(context: BeforeEach): Unit = {
+    Quantity.clear
+  }
 
   test("returns dimensionless dims") {
     val Array(

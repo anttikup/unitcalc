@@ -69,7 +69,6 @@ class CompoundNameTest extends munit.FunSuite {
 
     val result = name1 * name2
 
-    println(s"result: $result")
     assert(result.toString == "kilometre²/hour²")
   }
 

@@ -26,7 +26,7 @@ object Main {
   val model = new Model
   import model.*
 
-  List
+  List.load
   Calc.preload
 
   def appElement(): Element =
