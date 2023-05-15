@@ -107,6 +107,13 @@ class CalcTest extends munit.FunSuite {
     assert(result.unit.name.toString == "metre²")
   }
 
+  test("can convert units") {
+    Env.`import`("centimetre", "cm")
+    val result = Calc.calc("11 m ? cm")
+    assert(result.amount == 1100)
+    assert(result.unit.name.toString == "centimetre")
+  }
+
 
 }
 

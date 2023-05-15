@@ -48,6 +48,22 @@ class Unitful(val amount: Double, val unit: Unido) {
   def /(other: Unitful): Unitful =
     Unitful(amount / other.amount, unit / other.unit)
 
+  def ?(to: Unitful): Unitful = {
+    val from = this
+
+    if ( from.unit.quantity != to.unit.quantity ) {
+      throw new Error(s"Incompatible units: ${from.unit} and ${to.unit}")
+    }
+
+    if ( to.amount != 1 ) {
+      throw new Error(s"Right side of ? must have a multiplier of 1")
+    }
+
+    val ratio = from.unit.multiplier / to.unit.multiplier
+
+    Unitful(from.amount * ratio, to.unit)
+  }
+
   def ===(other: Unitful) =
     this.unit.quantity == other.unit.quantity &&
       (Util.almostEquals(this.numericalValue, other.numericalValue))

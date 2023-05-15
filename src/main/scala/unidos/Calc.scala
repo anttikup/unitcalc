@@ -116,6 +116,11 @@ object Calc {
           val param = varStack.pop
           varStack.push(Unitful.root(param, 3))
         }
+        case "?" => {
+          val right = varStack.pop
+          val left = varStack.pop
+          varStack.push(left ? right)
+        }
         case variable => {
           Env.get(variable) match {
             case Some(unit) => {

@@ -51,7 +51,9 @@ object List {
 
     // Base units
     val `1` = Unido.create("1", 1, dimensionless)
-    val s = Unido.create("second", 1, time)
+
+    SIPrefix.createUnits("second", time)
+    val s = Unido("second")
 
     SIPrefix.createUnits("metre", length)
     val m = Unido("metre")
@@ -127,6 +129,8 @@ object List {
     val ly = Unido.create("lightyear", m * 9461e12)
     val at = Unido.create("technical atmosphere", Pa * 0.980665e5)
     val atm = Unido.create("normal atmosphere", kPa * 101.325)
+
+    val ft = Unido.create("foot", in * 12)
 
   }
 

@@ -355,4 +355,33 @@ class UnitfulTest extends munit.FunSuite {
     assert(result.unit.name.toString == "metre second")
 
   }
+
+  test("can convert to other unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val cm = Unido.create("centimetre", m / 100)
+
+    val result = Unitful(2.2, m) ? Unitful(1, cm)
+
+    println(s"result: $result")
+    assert(result.unit.name.toString == "centimetre")
+    assert(Util.almostEquals(result.amount, 220))
+
+  }
+
+  test("can convert to other unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val cm = Unido.create("centimetre", m / 100)
+
+    val result = Unitful(33, cm) ? Unitful(1, m)
+
+    println(s"result: $result")
+    assert(result.unit.name.toString == "metre")
+    assert(Util.almostEquals(result.amount, 0.33))
+
+  }
+
 }
