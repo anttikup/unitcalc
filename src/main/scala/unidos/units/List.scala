@@ -132,8 +132,9 @@ object List {
 
     val ft = Unido.create("foot", in * 12)
 
+    val `%` = Unido.create("percent", `1` * 0.01)
+    val `‰` = Unido.create("permille", `1` * 0.001)
+
   }
-
-
 
 }

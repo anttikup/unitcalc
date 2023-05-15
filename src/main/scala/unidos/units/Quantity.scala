@@ -9,11 +9,12 @@ case class Quantity(val name: String, dims: Dims) {
   }
 
   def *(other: Quantity): Quantity = {
-    if ( this.name == "dimensionless" ) { // TODO: don't check by name
+    if ( this.isDimensionless ) {
       return other
-    } else if ( other.name == "dimensionless" ) {
+    } else if ( other.isDimensionless ) {
       return this
     }
+
     val newDims = this.dims * other.dims
     Quantity.byDims.get(newDims) match {
       case Some(quantity) => quantity

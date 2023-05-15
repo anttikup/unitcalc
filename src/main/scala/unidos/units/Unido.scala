@@ -16,16 +16,22 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unido(multiplier * scalar, quantity)
 
   def *(other: Unido): Unido = {
-    val dimsThis = this.quantity
-    val dimsOther = other.quantity
+    val quantityThis = this.quantity
+    val quantityOther = other.quantity
 
-    val resultQuantity = dimsThis * dimsOther
+    val resultQuantity = quantityThis * quantityOther
+    println(s"resultQuantity: $resultQuantity")
     val resultUnit = Unido(this.multiplier * other.multiplier, resultQuantity)
 
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
       case None => {
-        new CompoundUnido(this.name * other.name, resultUnit)
+        if (this.quantity.isDimensionless)
+          new CompoundUnido(other.name, resultUnit)
+        else if (other.quantity.isDimensionless)
+          new CompoundUnido(this.name, resultUnit)
+        else
+          new CompoundUnido(this.name * other.name, resultUnit)
       }
     }
 
@@ -35,16 +41,19 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
     Unido(multiplier / scalar, quantity)
 
   def /(other: Unido): Unido = {
-    val dimsThis = this.quantity
-    val dimsOther = other.quantity
+    val quantityThis = this.quantity
+    val quantityOther = other.quantity
 
-    val resultQuantity = dimsThis / dimsOther
+    val resultQuantity = quantityThis / quantityOther
     val resultUnit = Unido(this.multiplier / other.multiplier, resultQuantity)
 
     Unidos.get(resultUnit) match {
       case Some(name) => resultUnit
       case None =>
-        CompoundUnido(this.name / other.name, resultUnit)
+        if (other.quantity.isDimensionless)
+          new CompoundUnido(this.name, resultUnit)
+        else
+          CompoundUnido(this.name / other.name, resultUnit)
     }
 
   }
@@ -58,6 +67,9 @@ case class Unido(val multiplier: Double, val quantity: Quantity) {
       case None => Unido.constructName(this)
     }
   }
+
+  def inUnit(other: Unido): (Double, Unido) =
+    (this.multiplier / other.multiplier, other)
 
   def isDimensionless =
     quantity.isDimensionless

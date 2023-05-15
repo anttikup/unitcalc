@@ -127,7 +127,7 @@ class UnidoTest extends munit.FunSuite {
     assert(Nm.quantity == torque)
   }
 
-  test("multiplying a unit by a dimensionless unit keeps the original unit") {
+   test("multiplying a unit by a dimensionless unit keeps the original unit") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val force = Quantity.create("force", Dims(-2, 1, 1, 0, 0, 0, 0))
@@ -391,7 +391,7 @@ class UnidoTest extends munit.FunSuite {
     assert(`Mm³`.name.toString == "megametre³")
   }
 
-  test("multiplying unit unitless returns just unit") {
+  test("multiplying unit by unitless returns just unit") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val kg = Unido.create("kilogram", 1, mass)
@@ -400,6 +400,54 @@ class UnidoTest extends munit.FunSuite {
 
     assert(test.multiplier == 1)
     assert(test.name.toString == "kilogram")
+  }
+
+  test("multiplying unit by percent keeps unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = `%` * kg
+
+    assert(test.multiplier == 0.01)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("multiplying unit by percent keeps unit, reverse") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = kg * `%`
+
+    assert(test.multiplier == 0.01)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("dividing unit by percent keeps unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = kg / `%`
+
+    assert(test.multiplier == 100)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("dividing percent by unit inverts unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = `%` / kg
+
+    assert(test.multiplier == 0.01)
+    assert(test.name.toString == "percent/kilogram") // ??
   }
 
 }
