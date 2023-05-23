@@ -3,6 +3,9 @@ package unidos.units
 import scala.language.implicitConversions
 
 
+/**
+ * A value in some unit.
+ */
 class Unitful(val amount: Double, val unit: Unido) {
   def this(amount: Double) =
     this(amount, Unido.UNITLESS)
@@ -11,35 +14,55 @@ class Unitful(val amount: Double, val unit: Unido) {
   def toString(): String =
     s"Unitful($amount, $unit)"
 
-  def +(other: Unitful) = {
+  def +(other: Unitful): Unitful = {
     if ( this.unit.quantity != other.unit.quantity ) {
       throw new Error(s"Incompatible units: ${this.unit} and ${other.unit}")
     }
 
     val resultUnit = Quantity.baseUnitOf(this.unit.quantity.name)
-    Unitful(this.amount * this.unit.multiplier + other.amount * other.unit.multiplier, resultUnit)
+    val resultAmount = this.amount * this.unit.multiplier + other.amount * other.unit.multiplier
+
+    Unitful(resultAmount, resultUnit)
   }
 
-  def -(other: Unitful) = {
+  def -(other: Unitful): Unitful = {
     if ( this.unit.quantity != other.unit.quantity ) {
       throw new Error(s"Incompatible units: ${this.unit} and ${other.unit}")
     }
 
     val resultUnit = Quantity.baseUnitOf(this.unit.quantity.name)
-    Unitful(this.amount * this.unit.multiplier - other.amount * other.unit.multiplier, resultUnit)
+    val resultAmount = this.amount * this.unit.multiplier - other.amount * other.unit.multiplier
+
+    Unitful(resultAmount, resultUnit)
   }
 
-  def *(scalar: Double) =
+  def *(scalar: Double): Unitful =
     Unitful(amount * scalar, unit)
 
-  def *(other: Unitful) =
+  def *(other: Unitful): Unitful =
     Unitful(amount * other.amount, unit * other.unit)
 
-  def /(scalar: Double) =
+  def /(scalar: Double): Unitful =
     Unitful(amount / scalar, unit)
 
-  def /(other: Unitful) =
+  def /(other: Unitful): Unitful =
     Unitful(amount / other.amount, unit / other.unit)
+
+  def ?(to: Unitful): Unitful = {
+    val from = this
+
+    if ( from.unit.quantity != to.unit.quantity ) {
+      throw new Error(s"Incompatible units: ${from.unit} and ${to.unit}")
+    }
+
+    if ( to.amount != 1 ) {
+      throw new Error(s"Right side of ? must have a multiplier of 1")
+    }
+
+    val ratio = from.unit.multiplier / to.unit.multiplier
+
+    Unitful(from.amount * ratio, to.unit)
+  }
 
   def ===(other: Unitful) =
     this.unit.quantity == other.unit.quantity &&
@@ -78,10 +101,11 @@ object Unitful {
     val newUnitful = new Unitful(amount, unit)
     // If the unit of the new value doesn't have a name, normalize it to base unit.
     // Eg. (assuming dm² doesn't exist) 4 dm² = 4 0.01m² -> 0.04 m²
-    Unidos.get(unit) match {
-      case Some(name) => newUnitful
-      case None => newUnitful.normalized
-    }
+    newUnitful
+    // Unidos.get(unit) match {
+    //   case Some(name) => newUnitful
+    //   case None => newUnitful.normalized
+    // }
 
 
 

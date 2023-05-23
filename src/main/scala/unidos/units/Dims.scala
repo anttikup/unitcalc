@@ -25,10 +25,10 @@ case class Dims(args: Int*) {
   }
 
   def isElementary: Boolean =
-    args.sum == 1
+    args.sum == 1 && args.count(_ == 0) == Dims.numberOfDims - 1
 
   def isDimensionless: Boolean =
-    args.sum == 0
+    args.forall(_ == 0)
 
 }
 

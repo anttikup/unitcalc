@@ -1,6 +1,6 @@
 package unidos
 
-import unidos.units.{Dims, Quantity, Unido, Unidos}
+import unidos.units.{CompoundName, Dims, Quantity, Unido, Unidos}
 
 
 
@@ -20,9 +20,19 @@ class UnidoTest extends munit.FunSuite {
       )
     )
 
+  override def beforeEach(context: BeforeEach): Unit = {
+    Quantity.clear
+    createBasicDims
+    Unidos.clear
+  }
 
-  def almostEquals(a: Unido, b: Unido) = {
-    a.quantity == b.quantity && Math.abs(a.multiplier - b.multiplier) < 0.0001
+  test("dimensionless returns 1") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val unit = Unido.create("1", 1, dimensionless)
+
+    assert(unit.quantity == dimensionless)
+    assert(unit.name.toString == "1")
   }
 
   test("can create") {
@@ -117,7 +127,7 @@ class UnidoTest extends munit.FunSuite {
     assert(Nm.quantity == torque)
   }
 
-  test("multiplying a unit by a dimensionless unit keeps the original unit") {
+   test("multiplying a unit by a dimensionless unit keeps the original unit") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val force = Quantity.create("force", Dims(-2, 1, 1, 0, 0, 0, 0))
@@ -128,7 +138,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(result.quantity == force)
     assert(result.multiplier == 1)
-    assert(result.name == Some("newton"))
+    assert(result.name.toString == "newton")
   }
 
   test("multiplying a unit by a dimensionless unit keeps the original unit (reverse)") {
@@ -142,7 +152,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(result.quantity == force)
     assert(result.multiplier == 1)
-    assert(result.name == Some("newton"))
+    assert(result.name.toString == "newton")
   }
 
   test("dividing a unit by a dimensionless unit keeps the original unit") {
@@ -156,7 +166,7 @@ class UnidoTest extends munit.FunSuite {
 
     assert(result.quantity == force)
     assert(result.multiplier == 1)
-    assert(result.name == Some("newton"))
+    assert(result.name.toString == "newton")
   }
 
   test("can create an inverted unit by dividing dimensionless with a unit") {
@@ -168,7 +178,7 @@ class UnidoTest extends munit.FunSuite {
     var result = `1`/s
 
     assert(result.multiplier == 1)
-    assert(result.name == Some("second⁻¹"))
+    assert(result.name.toString == "1/second")
   }
 
 
@@ -181,7 +191,7 @@ class UnidoTest extends munit.FunSuite {
     val result = Unido.pow(dm, 2)
 
     assert(result.quantity.name == "length²")
-    assert(result.name == Some("metre²"))
+    assert(result.name.toString == "decimetre²")
     assert(result.multiplier == Math.pow(0.1, 2))
 
   }
@@ -214,11 +224,10 @@ class UnidoTest extends munit.FunSuite {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val s = Unido.create("second", 1, time)
-
     var result = Unido.pow(s, -1)
 
     assert(result.multiplier == 1)
-    assert(result.name == Some("second⁻¹"))
+    assert(result.name.toString == "1/second")
   }
 
   test("can create inverted unit") {
@@ -227,10 +236,11 @@ class UnidoTest extends munit.FunSuite {
     val freq = Quantity.create("frequency", dimensionless/time)
 
     val s = Unido.create("second", 1, time)
-    val Hz = Unido.create("hertz", Unido.pow(s, -1))
+    val `1/s` = Unido.pow(s, -1)
+    val Hz = Unido.create("hertz", `1/s`)
 
     assert(Hz.multiplier == 1)
-    assert(Hz.name == Some("hertz"))
+    assert(Hz.name.toString == "hertz")
     assert(Hz.quantity.name == "frequency")
   }
 
@@ -238,9 +248,9 @@ class UnidoTest extends munit.FunSuite {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val timearea = Quantity.create("timearea", Dims(2, 0, 0, 0, 0, 0, 0))
-    val `m²` = Unido.create("square second", 1, timearea)
+    val `s²` = Unido.create("square second", 1, timearea)
 
-    val s = Unido.create("second", Unido.root(`m²`, 2))
+    val s = Unido.create("second", Unido.root(`s²`, 2))
 
     assert(s.multiplier == 1)
     assert(s.quantity == time)
@@ -264,7 +274,7 @@ class UnidoTest extends munit.FunSuite {
     assert(sr != `1`)
   }
 
-  test("operations can create new implicit units") {
+  test("operations can create new units, division") {
     val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
 
     val s = Unido.create("second", Quantity.baseUnitOf("time"))
@@ -276,8 +286,168 @@ class UnidoTest extends munit.FunSuite {
 
     val x = xxx / m
 
-    assert(x.name == Some("second⁻⁹ metre⁸ kilogram⁹"))
+    assert(x.name.toString == "xxx/metre")
   }
 
+  test("operations can create new compound units, division 2") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val s = Unido.create("second", Quantity.baseUnitOf("time"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+
+    val ds = Unido.create("decisecond", s / 10)
+    val hm = Unido.create("hectometre", m * 100)
+
+    val dsphm = ds / hm
+
+    assert(dsphm.multiplier == 0.001)
+    assert(dsphm.name.toString == "decisecond/hectometre")
+  }
+
+  test("operations can create new compound units, multiplication") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val kg = Unido.create("kilogram", Quantity.baseUnitOf("mass"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+
+    val kgm = kg * m
+
+    assert(kgm.multiplier == 1)
+    assert(kgm.name.toString == "kilogram metre")
+  }
+
+  test("can create new compound name units") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val speed = Quantity.create("speed", length / time)
+    val mps = Unido.create(CompoundName("metre" -> 1, "second" -> -1), 1, speed)
+
+    assert(mps.multiplier == 1)
+    assert(mps.name.toString == "metre/second")
+    assert(Unido("metre/second") === mps)
+  }
+
+  test("can create new compound name units, alt") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val s = Unido.create("second", Quantity.baseUnitOf("time"))
+    val m = Unido.create("metre", Quantity.baseUnitOf("length"))
+    val mps = Unido.create(CompoundName("metre" -> 1, "second" -> -1), m/s)
+
+    assert(mps.multiplier == 1)
+    assert(mps.name.toString == "metre/second")
+    assert(Unido("metre/second") === mps)
+  }
+
+  test("operations can create new implicit compound units") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val s = Unido.create("second", 1, time)
+    val m = Unido.create("metre", 1, length)
+    val `m/s` = m/s
+
+    assert(`m/s`.multiplier == 1)
+    assert(`m/s`.name.toString == "metre/second")
+  }
+
+  test("multiplying unit by itself creates a squared unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val `m²` = m*m
+
+    assert(`m²`.multiplier == 1)
+    assert(`m²`.name.toString == "metre²")
+  }
+
+  test("multiplying unit by itself three times creates a cubed unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val `m³` = m*m*m
+
+    assert(`m³`.multiplier == 1)
+    assert(`m³`.name.toString == "metre³")
+  }
+
+  test("multiplying unit by itself four times creates a power 4 unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val kg = Unido.create("kilogram", 1, mass)
+    val `kg⁴` = kg * kg * kg * kg
+
+    assert(`kg⁴`.multiplier == 1)
+    assert(`kg⁴`.name.toString == "kilogram⁴")
+  }
+
+  test("multiplying unit by itself three times creates a cubed unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val Mm = Unido.create("megametre", m * 1e6)
+    val `Mm³` = Mm * Mm * Mm
+
+    assert(`Mm³`.multiplier == 1e6 * 1e6 * 1e6)
+    assert(`Mm³`.name.toString == "megametre³")
+  }
+
+  test("multiplying unit by unitless returns just unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val kg = Unido.create("kilogram", 1, mass)
+    val `1` = Unido("1")
+    val test = `1` * kg
+
+    assert(test.multiplier == 1)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("multiplying unit by percent keeps unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = `%` * kg
+
+    assert(test.multiplier == 0.01)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("multiplying unit by percent keeps unit, reverse") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = kg * `%`
+
+    assert(test.multiplier == 0.01)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("dividing unit by percent keeps unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = kg / `%`
+
+    assert(test.multiplier == 100)
+    assert(test.name.toString == "kilogram")
+  }
+
+  test("dividing percent by unit inverts unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `1` = Unido("1")
+    val `%` = Unido.create("percent", `1`/100)
+    val kg = Unido.create("kilogram", 1, mass)
+    val test = `%` / kg
+
+    assert(test.multiplier == 0.01)
+    assert(test.name.toString == "percent/kilogram") // ??
+  }
 
 }

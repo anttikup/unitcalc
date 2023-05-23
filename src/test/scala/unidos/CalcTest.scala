@@ -2,12 +2,29 @@ package unidos
 
 import unidos.Calc
 import unidos.units.List
-import unidos.units.{Unido, Unitful}
+import unidos.units.{CompoundName, Unido, Unitful, Quantity, Unidos}
 
 
 class CalcTest extends munit.FunSuite {
-  override def beforeAll(): Unit = {
-    List
+  def createBasicDims: Array[Quantity] =
+    Quantity.createBaseQuantities(
+      Array(
+        "dimensionless",
+        "time",
+        "length",
+        "mass",
+        "electric current",
+        "temperature",
+        "amount of substance",
+        "luminous intensity"
+      )
+    )
+
+  override def beforeEach(context: BeforeEach): Unit = {
+    Quantity.clear
+    createBasicDims
+    Unidos.clear
+    List.load
     Calc.preload
   }
 
@@ -36,9 +53,9 @@ class CalcTest extends munit.FunSuite {
     assert(result === Unitful(6))
   }
 
-  test("multiplication with units") {
+  test("multiplication with unit with itself") {
     val result = Calc.calc("2 m · 3 m")
-    assert(result === Unitful(6, Unido("square metre")))
+    assert(result === Unitful(6, Unido.pow(Unido("metre"), 2)))
   }
 
   test("unitless division") {
@@ -53,12 +70,12 @@ class CalcTest extends munit.FunSuite {
 
   test("power with units") {
     val result = Calc.calc("(2 m) ^ 2")
-    assert(result === Unitful(4, Unido("square metre")))
+    assert(result === Unitful(4, Unido.pow(Unido("metre"), 2)))
   }
 
   test("power of unit") {
     val result = Calc.calc("2 m^2")
-    assert(result === Unitful(2, Unido("square metre")))
+    assert(result === Unitful(2, Unido.pow(Unido("metre"), 2)))
   }
 
   test("power is right associative") {
@@ -79,6 +96,24 @@ class CalcTest extends munit.FunSuite {
   test("logarithm with units".ignore) {
     assert(Calc.calc("log(4 m^2, 2 m)") === Calc.calc("2"))
   }
+
+  test("multiplication with unit with itself many times") {
+    val result = Calc.calc("2 m · 3 m · 4 m · 5 m")
+    assert(result === Unitful(120, Unido.pow(Unido("metre"), 4)))
+  }
+
+  test("one dissappears if other units are present") {
+    val result = Calc.calc("25 m^2")
+    assert(result.unit.name.toString == "metre²")
+  }
+
+  test("can convert units") {
+    Env.setSymbol("cm", "centimetre")
+    val result = Calc.calc("11 m ? cm")
+    assert(result.amount == 1100)
+    assert(result.unit.name.toString == "centimetre")
+  }
+
 
 }
 
