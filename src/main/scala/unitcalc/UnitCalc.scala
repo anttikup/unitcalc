@@ -11,10 +11,6 @@ import unidos.units.List
 import unitcalc.Help
 
 
-// import javascriptLogo from "/javascript.svg"
-@js.native @JSImport("/javascript.svg", JSImport.Default)
-val javascriptLogo: String = js.native
-
 @main
 def UnitCalc(): Unit =
   renderOnDomContentLoaded(

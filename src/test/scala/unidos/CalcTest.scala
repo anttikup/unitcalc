@@ -28,6 +28,22 @@ class CalcTest extends munit.FunSuite {
     Calc.preload
   }
 
+  test("implicit multiplication of number and symbol") {
+    val result = Calc.calc("2 m")
+    assert(result === Unitful(2, Unido("metre")))
+  }
+
+  test("implicit multiplication of number and symbol (2)") {
+    val result = Calc.calc("2m")
+    assert(result === Unitful(2, Unido("metre")))
+  }
+
+  test("implicit multiplication of number and parenthesis".ignore) {
+    val result = Calc.calc("2(2 m)")
+    assert(result === Unitful(4, Unido("metre")))
+  }
+
+
   test("unitless addition") {
     val result = Calc.calc("2 + 3")
     assert(result === Unitful(5))
@@ -111,6 +127,15 @@ class CalcTest extends munit.FunSuite {
     Env.setSymbol("cm", "centimetre")
     val result = Calc.calc("11 m ? cm")
     assert(result.amount == 1100)
+    assert(result.unit.name.toString == "centimetre")
+  }
+
+  test("expression starting with '? ...' means '_ ? ...'") {
+    Env.setSymbol("ft", "foot")
+    Env.setSymbol("cm", "centimetre")
+
+    Calc.eval("11 ft")
+    val result = Calc.eval("? cm")
     assert(result.unit.name.toString == "centimetre")
   }
 

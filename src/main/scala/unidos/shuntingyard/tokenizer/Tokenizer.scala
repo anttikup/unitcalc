@@ -11,7 +11,7 @@ object Tokenizer {
     val cursor = new Cursor(expr.trim + "\u0000", 0)
     readExpression(cursor)
     if ( !cursor.atEnd )
-      throw new Error(s"Unknown token at '${cursor.rest}': ${cursor.pos} != ${cursor.expr.length}")
+      throw new Error(s"Unexpected token: ${cursor.rest}'")
     cursor.output.reverse.toArray
   }
 

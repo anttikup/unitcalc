@@ -71,7 +71,6 @@ object Calc {
     val varStack = Stack[Unitful]()
 
     for ( token <- rpn ) {
-      //println(s"Handling: $token")
       token match {
         case "*" => {
           val right = varStack.pop
@@ -150,11 +149,17 @@ object Calc {
     return varStack.pop
   }
 
-  def eval(expr: String): Unitful = {
+  def prepareExpression(expr: String) =
+    if (expr(0) == '?')
+      '_' + expr
+    else
+      expr
+
+  def eval(exprIn: String): Unitful = {
+    val expr = prepareExpression(exprIn)
     val pattern = "^ *([^ =]+) *= *(.+)$".r
     expr match {
       case pattern(symbol, expr) => {
-        println(s"expr: $expr")
         Env.setVariable(symbol, calc(expr))
       }
       case _ => Env.setVariable("_", calc(expr))
