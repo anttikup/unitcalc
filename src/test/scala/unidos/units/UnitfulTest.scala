@@ -364,7 +364,6 @@ class UnitfulTest extends munit.FunSuite {
 
     val result = Unitful(2.2, m) ? Unitful(1, cm)
 
-    println(s"result: $result")
     assert(result.unit.name.toString == "centimetre")
     assert(Util.almostEquals(result.amount, 220))
 
@@ -378,10 +377,51 @@ class UnitfulTest extends munit.FunSuite {
 
     val result = Unitful(33, cm) ? Unitful(1, m)
 
-    println(s"result: $result")
     assert(result.unit.name.toString == "metre")
     assert(Util.almostEquals(result.amount, 0.33))
 
   }
+
+  test("unitless times unitless") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val `%` = Unido.create("percent", 0.01, dimensionless)
+
+    val value1 = Unitful(10, `%`)
+    val value2 = Unitful(20, `%`)
+    val result = value1 * value2
+
+    assert(result.amount == 2)
+    assert(result.unit.name.toString == "percent")
+  }
+
+  test("unitless times unit") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val `%` = Unido.create("percent", 0.01, dimensionless)
+
+    val value1 = Unitful(10, `%`)
+    val value2 = Unitful(20, m)
+    val result = value1 * value2
+
+    assert(result.amount == 2)
+    assert(result.unit.name.toString == "metre")
+  }
+
+  test("unit times unitless") {
+    val Array(dimensionless, time, length, mass, _*) = createBasicDims : @unchecked
+
+    val m = Unido.create("metre", 1, length)
+    val `%` = Unido.create("percent", 0.01, dimensionless)
+
+    val value1 = Unitful(20, m)
+    val value2 = Unitful(10, `%`)
+    val result = value1 * value2
+
+    assert(result.amount == 2)
+    assert(result.unit.name.toString == "metre")
+  }
+
 
 }

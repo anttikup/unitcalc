@@ -40,7 +40,12 @@ class Unitful(val amount: Double, val unit: Unido) {
     Unitful(amount * scalar, unit)
 
   def *(other: Unitful): Unitful =
-    Unitful(amount * other.amount, unit * other.unit)
+    if (this.quantity.isDimensionless)
+      other * (this.amount * this.unit.multiplier)
+    else if (other.quantity.isDimensionless)
+      this * (other.amount * other.unit.multiplier)
+    else
+      Unitful(amount * other.amount, unit * other.unit)
 
   def /(scalar: Double): Unitful =
     Unitful(amount / scalar, unit)
