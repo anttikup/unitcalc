@@ -64,6 +64,9 @@ object Calc {
 
     Env.setSymbol("km", "kilometre")
     Env.setSymbol("g", "gram")
+
+    Env.setSymbol("¤", "unit of money")
+    Env.setSymbol("B", "byte")
   }
 
   def calc(expr: String): Unitful = {

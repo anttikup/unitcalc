@@ -8,7 +8,9 @@ import org.scalajs.dom
 
 import unidos.Calc
 import unidos.units.List
+import unidos.units.Unidos
 import unitcalc.Help
+
 
 
 @main
@@ -24,22 +26,29 @@ object Main {
 
   List.load
   Calc.preload
+  loadUnitList(Unidos.list)
 
   def appElement(): Element =
     div(
-      className := "main",
-      h1("Unit calculator"),
       div(
-        className := "scroll-pane",
-        renderExprTable(),
+        className := "sidebar",
+        renderUnitList(),
       ),
       div(
-        className := "error",
-        child <-- errorSignal.map(msg => msg)
-      ),
-      div(
-        className := "bottom",
-        foreignHtmlElement(DomApi.unsafeParseHtmlString(Help.text))
+        className := "main",
+        h1("Unit calculator"),
+        div(
+          className := "scroll-pane",
+          renderExprTable(),
+        ),
+        div(
+          className := "error",
+          child <-- errorSignal.map(msg => msg)
+        ),
+        div(
+          className := "bottom",
+          foreignHtmlElement(DomApi.unsafeParseHtmlString(Help.text))
+        )
       )
     )
   end appElement
@@ -58,7 +67,7 @@ object Main {
             input(
               typ := "text",
               idAttr := "expr-input",
-              value <-- inputSignal.map(str => str.replace("*", "·").replace("-", "−")),
+              value <-- inputSignal.map(str => str),//.replace("*", "·").replace("-", "−")),
               onInput.mapToValue --> inputVar,
               onKeyPress --> (event => event.key match { case "Enter" => calculate() case _ => ; })
             )
@@ -85,6 +94,30 @@ object Main {
       ),
     )
   }
+
+
+  def renderUnitList(): Element =
+    div(
+      h2("Units"),
+      div(
+        children <-- unitsSignal.split(_.id) { (id, initial, itemSignal) =>
+          li(
+            className := "unit",
+            child.text <-- itemSignal.map(item => item.label),
+            onClick --> (x => {
+              inputVar.update(
+                inputText => {
+                  val pattern = "(\"[^\"]+\"|)$".r
+                  pattern.replaceFirstIn(inputText, s""""${x.target.asInstanceOf[dom.HTMLElement].textContent}"""")
+                }
+              )
+              dom.document.getElementById("expr-input").asInstanceOf[dom.HTMLElement].focus()
+            })
+          )
+        }
+      )
+    )
+
 
 
   def calculate() = {

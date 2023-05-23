@@ -26,8 +26,6 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
   max-height: 100vh;
@@ -40,9 +38,10 @@ h1 {
 }
 
 #app {
-  max-width: 1280px;
+    /*display: flex;
+  place-items: center;*/
+    /*max-width: 1280px;*/
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
   max-height: 100vh;
 }
@@ -114,6 +113,8 @@ input {
 }
 
 .main {
+    max-width: 1280px;
+    margin: auto;
     min-height: 50vh;
     max-height: 100vh;
     display: grid;
@@ -147,10 +148,7 @@ tr:nth-child(even) {
 }
 
 
-.help {
-    max-width: 40em;
 
-}
 
 .help p {
     text-align: left;
@@ -168,6 +166,16 @@ tr:nth-child(even) {
 .notice {
     border: dotted 3px red;
     padding: 0.5em;
+}
+
+.sidebar {
+    float: left;
+    max-height: 100vh;
+    overflow: scroll;
+}
+
+.unit {
+    cursor: pointer;
 }
 
 

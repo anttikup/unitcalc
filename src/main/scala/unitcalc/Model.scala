@@ -23,6 +23,18 @@ object ExprItem {
 type ExprList = List[ExprItem]
 
 
+
+final class UnitItemID
+case class UnitItem(id: UnitItemID, label: String)
+object UnitItem {
+  def apply(label: String): UnitItem =
+    UnitItem(UnitItemID(), label)
+}
+
+
+type UnitList = List[UnitItem]
+
+
 final class Model {
   val exprVar: Var[ExprList] = Var(List())
   val exprSignal = exprVar.signal
@@ -30,6 +42,9 @@ final class Model {
   val inputSignal = inputVar.signal
   val errorVar: Var[String] = Var("")
   val errorSignal = errorVar.signal
+
+  val unitsVar: Var[UnitList] = Var(List())
+  val unitsSignal = unitsVar.signal
 
   def addExprItem(item: ExprItem): Unit =
     exprVar.update(expr => expr :+ item)
@@ -48,5 +63,9 @@ final class Model {
 
   def getInputValue: String =
     inputSignal.now()
+
+  def loadUnitList(items: List[String]): Unit =
+    unitsVar.update(list => list ++ items.sorted.map(unitName => UnitItem(unitName)))
+
 
 }

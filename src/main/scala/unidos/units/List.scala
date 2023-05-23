@@ -2,12 +2,12 @@ package unidos.units
 
 import scala.math.{pow, Pi}
 
-import unidos.units.prefix.SIPrefix
+import unidos.units.prefix.{IECPrefix, SIPrefix}
 
 
 object List {
   def load = {
-    val Array(dimensionless, time, length, mass, current, temp, amount, intensity) =
+    val Array(dimensionless, time, length, mass, current, temp, amount, intensity, digitalInformation, money) =
       Quantity.createBaseQuantities(
         Array(
           "dimensionless",
@@ -17,7 +17,9 @@ object List {
           "electric current",
           "temperature",
           "amount of substance",
-          "luminous intensity"
+          "luminous intensity",
+          "digital information",
+          "money",
         )
       )
 
@@ -73,7 +75,6 @@ object List {
     SIPrefix.createUnits("candela", intensity)
     val cd = Unido("candela")
 
-
     // Derived units
     val rad = Unido.create("radian", 1, planeAngle)
     val sr = Unido.create("steradian", 1, solidAngle)
@@ -119,9 +120,9 @@ object List {
     val bar = Unido.create("bar", Pa * 1e5)
     val `Å` = Unido.create("ångström", m * 1e-10)
 
-    val mpk = Unido.create("meripeninkulma", m * 1852)
+    val nmi = Unido.create("nautical mile", m * 1852)
+    val kn = Unido.create("knot", nmi / h)
     val pk = Unido.create("peninkulma", m * 10000)
-    val kn = Unido.create("solmu", mpk / h)
 
     val mi = Unido.create("mile", m * 1609.344)
     val yd = Unido.create("yard", m * 0.9144)
@@ -134,6 +135,16 @@ object List {
 
     val `%` = Unido.create("percent", `1` * 0.01)
     val `‰` = Unido.create("permille", `1` * 0.001)
+
+    IECPrefix.createUnits("byte", digitalInformation)
+    val B = Unido("byte")
+    val b = Unido.create("bit", B/8)
+
+    val `¤` = Unido.create("unit of money", 1, money)
+    val `€` = Unido.create("euro", 1, money)
+    val `$` = Unido.create("dollar", 1, money)
+    val `£` = Unido.create("pound", 1, money)
+    val c = Unido.create("cent", `€` / 100)
 
   }
 

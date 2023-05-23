@@ -57,4 +57,7 @@ object Unidos {
   def getDefaultUnitForQuantity(quantity: String): Unido =
     Quantity.baseUnitOf(quantity)
 
+  def list: List[String] =
+    byName.keys.toList
+
 }
