@@ -2,6 +2,8 @@ package unidos.shuntingyard
 
 import scala.collection.mutable.{Stack, Queue, SortedSet}
 
+import unidos.shuntingyard.tokenizer.Tokenizer
+
 
 object Exp extends Enumeration {
   type Exp = Value
