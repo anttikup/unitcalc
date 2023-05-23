@@ -146,30 +146,6 @@ tr:nth-child(even) {
     background: #343443;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-      background-color: orange;
-  }
-
-  tr:nth-child(even) {
-      background: #f3f3f3;
-  }
-
-  thead {
-      position: sticky;
-      top: 0;
-      background-color: #f4f4f4;
-  }
-
-}
-
 
 .help {
     max-width: 40em;
@@ -192,4 +168,39 @@ tr:nth-child(even) {
 .notice {
     border: dotted 3px red;
     padding: 0.5em;
+}
+
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #fafaff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+      background-color: orange;
+  }
+
+  tr:nth-child(even) {
+      background: #f3f3f6;
+  }
+
+  thead {
+      position: sticky;
+      top: 0;
+      background-color: #f4f4f4;
+  }
+
+  .op {
+      background-color: #f4f4f4;
+      padding: 2px;
+  }
+
+  .code {
+      background-color: #f4f4f4;
+  }
+
+
 }
